@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#10151c" />
+    <meta name="description" content="Stack Overflown: um jogo de blocos e padrões inspirado em erros de programação." />
+    <title>Stack Overflown — debugue o tabuleiro</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark" aria-hidden="true">&gt;_</span><span>STACK<span class="brand-accent">OVERFLOWN</span><small>.GAME</small></span></div>
+        <span class="topbar-label"><span class="live-dot"></span> ARCADE / BUILD 01</span>
+      </header>
+
+      <main>
+        <div class="intro">
+          <div><p class="eyebrow">01 / SISTEMA EM EXECUÇÃO</p><h1>Encontre o padrão.<br /><em>Resolva o bug.</em></h1></div>
+          <p class="intro-copy">Encaixe os blocos para reproduzir o desenho alvo em uma área de 5 × 5. Cada padrão resolvido libera espaço e acelera o jogo.</p>
+        </div>
+
+        <div class="game-layout">
+          <section class="board-panel" aria-label="Área do jogo">
+            <div class="panel-heading"><span><span class="terminal-caret">▸</span> tabuleiro.exe</span><span id="stateTag" class="state-tag">AGUARDANDO</span></div>
+            <div class="board-frame">
+              <div class="board-rail" aria-hidden="true"><span>01</span><span>05</span><span>10</span><span>15</span><span>20</span></div>
+              <div class="canvas-wrap">
+                <canvas id="gameCanvas" width="300" height="600" aria-label="Tabuleiro com dez colunas e vinte linhas"></canvas>
+                <div id="overlay" class="board-overlay">
+                  <div class="overlay-icon" aria-hidden="true">{ }</div>
+                  <p class="overlay-kicker" id="overlayKicker">PRONTO PARA COMPILAR?</p>
+                  <h2 id="overlayTitle">Stack Overflown</h2>
+                  <p id="overlayText">Faça os blocos formarem o padrão alvo. Os blocos pretos ocupam espaço, mas contam como vazio no desenho.</p>
+                  <button id="overlayButton" class="primary-button" type="button">Iniciar jogo <span aria-hidden="true">↗</span></button>
+                </div>
+              </div>
+            </div>
+            <div class="board-footer"><span><span class="footer-dot"></span> <span id="statusText" role="status" aria-live="polite">Aguardando início</span></span><span>10 × 20 GRID</span></div>
+          </section>
+
+          <aside class="sidebar" aria-label="Informações do jogo">
+            <section class="card score-card">
+              <div class="card-heading"><span>SESSÃO ATUAL</span><span>01 —</span></div>
+              <div class="score-value" id="score">0000</div>
+              <div class="score-caption">PONTUAÇÃO <span>+100 / PADRÃO</span></div>
+              <div class="stats-grid"><div><span>NÍVEL</span><strong id="level">01</strong></div><div><span>RESOLVIDOS</span><strong id="cleared">00</strong></div><div><span>RECORDE</span><strong id="highScore">0000</strong></div></div>
+            </section>
+
+            <section class="card target-card">
+              <div class="card-heading"><span>BUG ATIVO</span><span class="target-indicator">● ALVO</span></div>
+              <div class="target-body"><canvas id="patternCanvas" width="120" height="120" aria-label="Prévia do padrão alvo"></canvas><div><span class="tiny-label">PADRÃO #<span id="patternIndex">01</span></span><h2 id="patternName">Carregando...</h2><p>Reproduza as células acesas. As demais devem ficar vazias.</p></div></div>
+            </section>
+
+            <section class="card next-card">
+              <div class="card-heading"><span>NA FILA</span><span>02 —</span></div>
+              <div class="next-body"><canvas id="nextCanvas" width="120" height="75" aria-label="Prévia do próximo bloco"></canvas><p>Próximo bloco</p></div>
+            </section>
+
+            <section class="controls-card">
+              <div class="card-heading"><span>COMANDOS</span><span>⌨</span></div>
+              <div class="key-row"><span>Mover</span><span><kbd>←</kbd> <kbd>→</kbd></span></div>
+              <div class="key-row"><span>Girar</span><span><kbd>↑</kbd></span></div>
+              <div class="key-row"><span>Descer</span><span><kbd>↓</kbd></span></div>
+              <div class="key-row"><span>Soltar</span><span><kbd>ESPAÇO</kbd></span></div>
+              <div class="key-row"><span>Pausar</span><span><kbd>P</kbd></span></div>
+              <button id="pauseButton" class="secondary-button" type="button" disabled>Pausar <span>⏸</span></button>
+            </section>
+          </aside>
+        </div>
+
+        <div class="touch-controls" aria-label="Controles de toque">
+          <button type="button" data-action="left" aria-label="Mover para esquerda">←</button>
+          <button type="button" data-action="rotate" aria-label="Girar bloco">↻</button>
+          <button type="button" data-action="down" aria-label="Descer bloco">↓</button>
+          <button type="button" data-action="right" aria-label="Mover para direita">→</button>
+          <button type="button" data-action="drop" aria-label="Soltar bloco">SOLTAR</button>
+        </div>
+      </main>
+      <footer class="site-footer"><span>STACK OVERFLOWN / UM PUZZLE PARA QUEM GOSTA DE DEPURAR.</span><span>FEITO PARA JOGAR NO NAVEGADOR.</span></footer>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
