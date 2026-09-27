@@ -2,6 +2,10 @@
 
 Jogo de blocos inspirado em erros de programação. O objetivo é reproduzir o padrão 5 × 5 mostrado ao lado do tabuleiro. Cada acerto vale 100 pontos e limpa apenas a área resolvida. A velocidade aumenta a cada cinco padrões.
 
+![Interface do jogo em desktop](docs/images/desktop.png)
+
+O alvo e o placar rápido ficam acima do tabuleiro no celular; os controles de toque permanecem acessíveis durante a partida. [Veja a prévia móvel](docs/images/mobile.png), a [auditoria visual e técnica](docs/AUDITORIA.md) e o [roadmap](docs/ROADMAP.md).
+
 ## Jogar localmente
 
 Requer Node.js 20.19+ ou 22.12+.
@@ -16,6 +20,7 @@ Abra o endereço mostrado no terminal. Para validar o projeto:
 ```bash
 npm test
 npm run build
+npm run test:ui
 ```
 
 ## Controles
@@ -37,8 +42,10 @@ Em telas pequenas, use os botões abaixo do tabuleiro. Blocos escuros (`void`) o
 - `src/render.ts`: desenho dos canvas.
 - `src/main.ts`: controles, relógio e interface.
 - `tests/game.test.ts`: testes das regras principais.
+- `scripts/check-ui.mjs`: teste da interface, nove tamanhos de janela e fluxos de jogo em Chromium.
+- `docs/`: auditoria, roadmap e capturas.
 
-Vite e TypeScript cuidam da compilação. O jogo publicado usa só arquivos estáticos. O recorde fica salvo no navegador com `localStorage`.
+Vite e TypeScript cuidam da compilação. O jogo publicado usa só arquivos estáticos, sem fontes ou bibliotecas visuais carregadas em tempo de execução. O recorde fica salvo no navegador com `localStorage`. Para rodar o teste de interface localmente, instale o Chromium do Playwright uma vez com `npx playwright install chromium`.
 
 ## Publicar no GitHub Pages
 
@@ -51,9 +58,9 @@ Vite e TypeScript cuidam da compilação. O jogo publicado usa só arquivos est�
    ```
 
 3. Em **Settings → Pages → Build and deployment**, selecione **GitHub Actions**.
-4. O workflow testa, compila e publica o conteúdo de `dist` a cada push para `main`. O endereço será `https://SEU-USUARIO.github.io/stack-overflown/`.
+4. O workflow testa regras, compila, verifica a interface em Chromium e publica o conteúdo de `dist` a cada push para `main`. O endereço será `https://SEU-USUARIO.github.io/stack-overflown/`.
 
-Os caminhos gerados são relativos, então o jogo também funciona se o repositório receber outro nome. A publicação depende de um repositório remoto e da configuração Pages na sua conta.
+Os caminhos gerados são relativos, então o jogo também funciona se o repositório receber outro nome. A publicação pública ainda depende da confirmação da origem e licença do código inicial fornecido para esta adaptação.
 
 ## Histórico Git
 
