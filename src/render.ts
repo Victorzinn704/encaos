@@ -3,16 +3,18 @@ import { PATTERNS, type Pattern } from "./patterns";
 
 const SIZE = 30;
 const COLORS: Record<number, string> = {
-  1: "#f68777", 2: "#54c8bc", 3: "#e5a86f", 4: "#b69af5",
-  5: "#e6cf7b", 6: "#74b8f6", 7: "#a4d387", [VOID]: "#3a4654",
+  1: "#d8ff45", 2: "#bda7ff", 3: "#ff806e", 4: "#75dce3",
+  5: "#ffe483", 6: "#7dafef", 7: "#f3a9d9", [VOID]: "#55506c",
 };
 
 function cell(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string, alpha = 1): void {
   ctx.globalAlpha = alpha;
   ctx.fillStyle = color;
   ctx.fillRect(x + 1, y + 1, size - 2, size - 2);
-  ctx.fillStyle = "rgba(255,255,255,.15)";
-  ctx.fillRect(x + 1, y + 1, size - 2, 2);
+  ctx.fillStyle = "rgba(255,255,255,.27)";
+  ctx.fillRect(x + 2, y + 2, size - 4, 2);
+  ctx.fillStyle = "rgba(17,15,35,.2)";
+  ctx.fillRect(x + 2, y + size - 4, size - 4, 2);
   ctx.globalAlpha = 1;
 }
 
@@ -23,9 +25,9 @@ function piece(ctx: CanvasRenderingContext2D, cells: Matrix, x: number, y: numbe
 }
 
 export function drawBoard(ctx: CanvasRenderingContext2D, game: Game): void {
-  ctx.fillStyle = "#111a23";
+  ctx.fillStyle = "#181727";
   ctx.fillRect(0, 0, COLS * SIZE, ROWS * SIZE);
-  ctx.strokeStyle = "#25323e";
+  ctx.strokeStyle = "#34314b";
   ctx.lineWidth = 1;
   for (let x = 0; x <= COLS; x++) {
     ctx.beginPath(); ctx.moveTo(x * SIZE + .5, 0); ctx.lineTo(x * SIZE + .5, ROWS * SIZE); ctx.stroke();
@@ -44,18 +46,18 @@ export function drawBoard(ctx: CanvasRenderingContext2D, game: Game): void {
 }
 
 export function drawPattern(ctx: CanvasRenderingContext2D, target: Pattern): void {
-  ctx.fillStyle = "#101921";
+  ctx.fillStyle = "#211e35";
   ctx.fillRect(0, 0, 120, 120);
   const size = 19;
   const offset = 12;
   target.cells.forEach((row, y) => row.forEach((value, x) => {
-    ctx.fillStyle = value ? "#f68777" : "#25333c";
+    ctx.fillStyle = value ? "#bda7ff" : "#3e3956";
     ctx.fillRect(offset + x * size + 1, offset + y * size + 1, size - 3, size - 3);
   }));
 }
 
 export function drawNext(ctx: CanvasRenderingContext2D, matrix: Matrix): void {
-  ctx.fillStyle = "#101921";
+  ctx.fillStyle = "#29243c";
   ctx.fillRect(0, 0, 120, 75);
   const size = 22;
   const width = matrix[0]!.length * size;

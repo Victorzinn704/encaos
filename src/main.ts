@@ -21,6 +21,7 @@ let lastTime = 0;
 let elapsed = 0;
 let dirty = true;
 let highScore = readHighScore();
+let lastShownScore = 0;
 
 function readHighScore(): number {
   try {
@@ -52,9 +53,13 @@ function render(): void {
   drawPattern(patternCtx!, game.target);
   drawNext(nextCtx!, game.next);
   element("score").textContent = String(game.score).padStart(4, "0");
+  element("miniScore").textContent = String(game.score).padStart(4, "0");
   element("level").textContent = String(game.level).padStart(2, "0");
+  element("miniLevel").textContent = String(game.level).padStart(2, "0");
   element("cleared").textContent = String(game.cleared).padStart(2, "0");
   element("highScore").textContent = String(highScore).padStart(4, "0");
+  element("progressText").textContent = `${game.cleared % 5} / 5`;
+  element<HTMLElement>("progressFill").style.width = `${(game.cleared % 5) * 20}%`;
   element("patternName").textContent = game.target.name;
   element("patternIndex").textContent = patternNumber(game.target);
   element("statusText").textContent = game.message;
@@ -64,6 +69,17 @@ function render(): void {
   const pause = element<HTMLButtonElement>("pauseButton");
   pause.disabled = game.phase === "ready" || game.phase === "over";
   pause.innerHTML = game.phase === "paused" ? "Continuar <span>▶</span>" : "Pausar <span>⏸</span>";
+  document.querySelectorAll<HTMLButtonElement>("[data-action]").forEach((button) => {
+    button.disabled = game.phase !== "playing";
+  });
+  if (game.score > lastShownScore) {
+    const cabinet = document.querySelector<HTMLElement>(".cabinet")!;
+    cabinet.classList.remove("celebrate");
+    void cabinet.offsetWidth;
+    cabinet.classList.add("celebrate");
+    window.setTimeout(() => cabinet.classList.remove("celebrate"), 650);
+  }
+  lastShownScore = game.score;
   if (game.phase === "over") {
     showOverlay("EXECUÇÃO ENCERRADA", "Stack overflow!", `Você fez ${game.score} pontos e resolveu ${game.cleared} padrões.`, "Jogar novamente");
   }

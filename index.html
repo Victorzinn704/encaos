@@ -3,69 +3,72 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#10151c" />
-    <meta name="description" content="Stack Overflown: um jogo de blocos e padrões inspirado em erros de programação." />
-    <title>Stack Overflown — debugue o tabuleiro</title>
+    <meta name="theme-color" content="#181521" />
+    <meta name="description" content="Stack Overflown: encaixe blocos, encontre padrões de bugs e mantenha o tabuleiro vivo." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Stack Overflown — encontre o padrão</title>
   </head>
   <body>
+    <div class="atmosphere" aria-hidden="true"><span></span><span></span></div>
     <div class="app-shell">
-      <header class="topbar">
-        <div class="brand"><span class="brand-mark" aria-hidden="true">&gt;_</span><span>STACK<span class="brand-accent">OVERFLOWN</span><small>.GAME</small></span></div>
-        <span class="topbar-label"><span class="live-dot"></span> ARCADE / BUILD 01</span>
-      </header>
-
-      <main>
-        <div class="intro">
-          <div><p class="eyebrow">01 / SISTEMA EM EXECUÇÃO</p><h1>Encontre o padrão.<br /><em>Resolva o bug.</em></h1></div>
-          <p class="intro-copy">Encaixe os blocos para reproduzir o desenho alvo em uma área de 5 × 5. Cada padrão resolvido libera espaço e acelera o jogo.</p>
-        </div>
+      <main class="cabinet" aria-labelledby="gameTitle">
+        <header class="topbar">
+          <div class="brand"><span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>STACK <b>OVERFLOWN</b></span></div>
+          <div class="topbar-meta"><span class="live-dot" aria-hidden="true"></span><span>PUZZLE / ARCADE</span><span class="topbar-separator">✳</span><span>01</span></div>
+        </header>
 
         <div class="game-layout">
-          <section class="board-panel" aria-label="Área do jogo">
-            <div class="panel-heading"><span><span class="terminal-caret">▸</span> tabuleiro.exe</span><span id="stateTag" class="state-tag">AGUARDANDO</span></div>
-            <div class="board-frame">
-              <div class="board-rail" aria-hidden="true"><span>01</span><span>05</span><span>10</span><span>15</span><span>20</span></div>
+          <section class="mission" aria-labelledby="gameTitle">
+            <div class="mission-intro">
+              <p class="eyebrow"><span class="diamond" aria-hidden="true">✦</span> MISSÃO 01 / DEBUGAR</p>
+              <h1 id="gameTitle">Stack<br /><em>Overflown.</em></h1>
+              <p class="mission-copy">Os bugs estão caindo. Encaixe os blocos, complete o desenho e mantenha a pilha sob controle.</p>
+            </div>
+
+            <div class="mission-art" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><span>↘</span></div>
+
+            <div class="target-panel">
+              <div class="target-heading"><span>BUG DA VEZ</span><span class="target-count">#<span id="patternIndex">01</span> <span aria-hidden="true">↗</span></span></div>
+              <div class="target-content">
+                <canvas id="patternCanvas" width="120" height="120" role="img" aria-label="Desenho de cinco por cinco células do padrão alvo"></canvas>
+                <div class="target-copy"><span class="target-prefix">ENCONTRE O PADRÃO</span><h2 id="patternName">Carregando...</h2><p>Preencha as casas acesas. Deixe as outras livres.</p></div>
+              </div>
+            </div>
+
+            <div class="mission-note"><span class="note-icon" aria-hidden="true">◈</span><p><strong>Dica de debug</strong><br />Blocos escuros ocupam espaço, mas valem como vazio no desenho.</p></div>
+            <div class="mission-decoration" aria-hidden="true"><span></span><span></span><span></span></div>
+          </section>
+
+          <section class="playfield" aria-label="Tabuleiro do jogo">
+            <div class="playfield-top"><span class="playfield-label"><span aria-hidden="true">▸</span> ÁREA DE JOGO</span><span id="stateTag" class="state-tag">AGUARDANDO</span></div>
+            <div class="mobile-stats" aria-label="Placar rápido"><span>PTS <strong id="miniScore">0000</strong></span><span>NÍVEL <strong id="miniLevel">01</strong></span></div>
+            <div class="board-well">
+              <div class="board-side" aria-hidden="true"><span>01</span><span>05</span><span>10</span><span>15</span><span>20</span></div>
               <div class="canvas-wrap">
-                <canvas id="gameCanvas" width="300" height="600" aria-label="Tabuleiro com dez colunas e vinte linhas"></canvas>
+                <canvas id="gameCanvas" width="300" height="600" role="img" aria-label="Tabuleiro de dez colunas e vinte linhas"></canvas>
                 <div id="overlay" class="board-overlay">
-                  <div class="overlay-icon" aria-hidden="true">{ }</div>
-                  <p class="overlay-kicker" id="overlayKicker">PRONTO PARA COMPILAR?</p>
-                  <h2 id="overlayTitle">Stack Overflown</h2>
-                  <p id="overlayText">Faça os blocos formarem o padrão alvo. Os blocos pretos ocupam espaço, mas contam como vazio no desenho.</p>
-                  <button id="overlayButton" class="primary-button" type="button">Iniciar jogo <span aria-hidden="true">↗</span></button>
+                  <div class="overlay-card">
+                    <div class="overlay-symbol" aria-hidden="true">{!}</div>
+                    <p class="overlay-kicker" id="overlayKicker">PRONTO PARA JOGAR?</p>
+                    <h2 id="overlayTitle">Resolva o bug.</h2>
+                    <p id="overlayText">Reproduza o padrão mostrado ao lado em qualquer área 5 × 5 do tabuleiro.</p>
+                    <button id="overlayButton" class="primary-button" type="button">Iniciar partida <span aria-hidden="true">↗</span></button>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="board-footer"><span><span class="footer-dot"></span> <span id="statusText" role="status" aria-live="polite">Aguardando início</span></span><span>10 × 20 GRID</span></div>
+            <div class="playfield-bottom"><span class="status-pip" aria-hidden="true"></span><span id="statusText" role="status" aria-live="polite">Aguardando início</span><span class="grid-label">10 × 20</span></div>
           </section>
 
-          <aside class="sidebar" aria-label="Informações do jogo">
-            <section class="card score-card">
-              <div class="card-heading"><span>SESSÃO ATUAL</span><span>01 —</span></div>
-              <div class="score-value" id="score">0000</div>
-              <div class="score-caption">PONTUAÇÃO <span>+100 / PADRÃO</span></div>
-              <div class="stats-grid"><div><span>NÍVEL</span><strong id="level">01</strong></div><div><span>RESOLVIDOS</span><strong id="cleared">00</strong></div><div><span>RECORDE</span><strong id="highScore">0000</strong></div></div>
-            </section>
-
-            <section class="card target-card">
-              <div class="card-heading"><span>BUG ATIVO</span><span class="target-indicator">● ALVO</span></div>
-              <div class="target-body"><canvas id="patternCanvas" width="120" height="120" aria-label="Prévia do padrão alvo"></canvas><div><span class="tiny-label">PADRÃO #<span id="patternIndex">01</span></span><h2 id="patternName">Carregando...</h2><p>Reproduza as células acesas. As demais devem ficar vazias.</p></div></div>
-            </section>
-
-            <section class="card next-card">
-              <div class="card-heading"><span>NA FILA</span><span>02 —</span></div>
-              <div class="next-body"><canvas id="nextCanvas" width="120" height="75" aria-label="Prévia do próximo bloco"></canvas><p>Próximo bloco</p></div>
-            </section>
-
-            <section class="controls-card">
-              <div class="card-heading"><span>COMANDOS</span><span>⌨</span></div>
-              <div class="key-row"><span>Mover</span><span><kbd>←</kbd> <kbd>→</kbd></span></div>
-              <div class="key-row"><span>Girar</span><span><kbd>↑</kbd></span></div>
-              <div class="key-row"><span>Descer</span><span><kbd>↓</kbd></span></div>
-              <div class="key-row"><span>Soltar</span><span><kbd>ESPAÇO</kbd></span></div>
-              <div class="key-row"><span>Pausar</span><span><kbd>P</kbd></span></div>
-              <button id="pauseButton" class="secondary-button" type="button" disabled>Pausar <span>⏸</span></button>
-            </section>
+          <aside class="dashboard" aria-label="Placar e comandos">
+            <div class="dashboard-top"><span class="section-code">SEU PLACAR</span><span aria-hidden="true">✦</span></div>
+            <div class="score-block"><span class="score-label">PONTOS ACUMULADOS</span><strong id="score">0000</strong><span class="score-rule">+100 A CADA BUG RESOLVIDO</span></div>
+            <div class="metric-row"><div><span>NÍVEL</span><strong id="level">01</strong></div><div><span>RESOLVIDOS</span><strong id="cleared">00</strong></div><div><span>RECORDE</span><strong id="highScore">0000</strong></div></div>
+            <div class="level-progress"><div><span>PRÓXIMO NÍVEL</span><span id="progressText">0 / 5</span></div><div class="progress-track"><span id="progressFill"></span></div></div>
+            <div class="dashboard-divider"></div>
+            <section class="next-piece" aria-label="Próximo bloco"><div class="dashboard-heading"><span>NA FILA</span><span>↘</span></div><div class="next-content"><canvas id="nextCanvas" width="120" height="75" role="img" aria-label="Prévia do próximo bloco"></canvas><span>Próximo<br />bloco</span></div></section>
+            <section class="keyboard-controls" aria-label="Controles do teclado"><div class="dashboard-heading"><span>COMO JOGAR</span><span>⌨</span></div><div class="control-row"><span>Mover</span><span><kbd>←</kbd><kbd>→</kbd></span></div><div class="control-row"><span>Girar</span><kbd>↑</kbd></div><div class="control-row"><span>Descer</span><kbd>↓</kbd></div><div class="control-row"><span>Soltar</span><kbd>ESPAÇO</kbd></div><div class="control-row"><span>Pausar</span><kbd>P</kbd></div></section>
+            <button id="pauseButton" class="pause-button" type="button" disabled>Pausar <span aria-hidden="true">Ⅱ</span></button>
           </aside>
         </div>
 
@@ -74,10 +77,10 @@
           <button type="button" data-action="rotate" aria-label="Girar bloco">↻</button>
           <button type="button" data-action="down" aria-label="Descer bloco">↓</button>
           <button type="button" data-action="right" aria-label="Mover para direita">→</button>
-          <button type="button" data-action="drop" aria-label="Soltar bloco">SOLTAR</button>
+          <button type="button" data-action="drop" aria-label="Soltar bloco">SOLTAR <span aria-hidden="true">↧</span></button>
         </div>
+        <footer class="cabinet-footer"><span>STACK OVERFLOWN <span aria-hidden="true">✳</span> FEITO PARA GENTE QUE GOSTA DE RESOLVER PROBLEMAS</span><span>BUILD 01 / BROWSER GAME</span></footer>
       </main>
-      <footer class="site-footer"><span>STACK OVERFLOWN / UM PUZZLE PARA QUEM GOSTA DE DEPURAR.</span><span>FEITO PARA JOGAR NO NAVEGADOR.</span></footer>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
