@@ -23,3 +23,6 @@
 
 2. **[2026-09-27] Manter Git e comentários legíveis em português**
    Do instead: usar commits com motivo claro em português e comentar decisões não óbvias, evitando narrar cada linha.
+
+3. **[2026-09-27] Oferecer controles sem setas, prévia dupla e combos**
+   Do instead: manter W/A/S/D junto das setas, exibir as duas próximas peças também no celular e validar a ordem após travar. Combo cresce ao limpar linhas em peças consecutivas, dá 50 × (sequência − 1) × nível extra e termina ao travar sem limpar.

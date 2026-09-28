@@ -48,6 +48,52 @@ async function waitForPreview() {
 
 let browser;
 
+// Ordem I, O, T, S, Z, J: as duas últimas quedas limpam linhas consecutivas.
+const comboMoves = [
+  [0, 3],
+  [0, 4],
+  [0, 0],
+  [0, -2],
+  [1, -3],
+  [0, 2],
+];
+async function playCombo(page, touch = false, delay = 0) {
+  const input = async (action) => {
+    if (touch) await page.locator(`[data-action="${action}"]`).tap();
+    else
+      await page.keyboard.press(
+        { left: "KeyA", right: "KeyD", rotate: "KeyW", drop: "Space" }[action],
+      );
+  };
+  for (const [turns, dx] of comboMoves) {
+    for (let i = 0; i < turns; i++) await input("rotate");
+    for (let i = 0; i < Math.abs(dx); i++)
+      await input(dx < 0 ? "left" : "right");
+    if (delay) await page.waitForTimeout(delay);
+    await input("drop");
+    if (delay) await page.waitForTimeout(delay);
+  }
+  assert.equal(
+    await page.locator("#score").textContent(),
+    "0250",
+    "Bônus de combo não entrou no placar",
+  );
+  assert.equal(await page.locator("#combo").textContent(), "×2");
+  assert.equal(await page.locator("#miniCombo").textContent(), "×2");
+  assert.equal(await page.locator("#comboBonus").textContent(), "+50 EXTRA");
+  assert.equal(
+    await page.locator("#comboNoticeTitle").textContent(),
+    "COMBO ×2",
+  );
+  await page.waitForFunction(() => {
+    const notice = document.querySelector("#comboNotice");
+    return (
+      notice.classList.contains("is-visible") &&
+      Number(getComputedStyle(notice).opacity) > 0.5
+    );
+  });
+}
+
 async function completeLine(page, touch = false) {
   const input = async (action) => {
     if (touch) await page.locator(`[data-action="${action}"]`).tap();
@@ -134,6 +180,8 @@ try {
           bottom: box.bottom,
           height: box.height,
           width: box.width,
+          left: box.left,
+          right: box.right,
         };
       };
       return {
@@ -145,6 +193,14 @@ try {
         targetCopy: bounds(".target-copy"),
         overlay: bounds(".overlay-card"),
         touch: bounds(".touch-controls"),
+        next: bounds(
+          window.innerWidth <= 900 ? "#mobileNextCanvas" : "#nextCanvas",
+        ),
+        second: bounds(
+          window.innerWidth <= 900
+            ? "#mobileSecondNextCanvas"
+            : "#secondNextCanvas",
+        ),
       };
     });
     assert.equal(layout.overflow, false, `${width}px: há rolagem horizontal`);
@@ -161,6 +217,16 @@ try {
       `${width}px: tabuleiro fora da janela`,
     );
     assert.deepEqual(errors, [], `${width}px: erro de JavaScript`);
+    for (const preview of [layout.next, layout.second])
+      assert.ok(
+        preview.width > 30 &&
+          preview.height > 15 &&
+          preview.left >= 0 &&
+          preview.right <= width &&
+          preview.top >= 0 &&
+          preview.bottom <= height,
+        `${width}px: prévia da fila fora da janela`,
+      );
     assert.ok(
       layout.targetCopy.bottom <= layout.target.bottom - 2,
       `${width}px: instrução escapa do painel`,
@@ -202,6 +268,48 @@ try {
     console.log(`✓ ${width} × ${height}: enquadramento e scripts`);
     await page.close();
   }
+
+  const aliases = await browser.newPage({
+    viewport: { width: 1280, height: 800 },
+    reducedMotion: "reduce",
+  });
+  const arrows = await browser.newPage({
+    viewport: { width: 1280, height: 800 },
+    reducedMotion: "reduce",
+  });
+  for (const page of [aliases, arrows]) {
+    await page.addInitScript(() => {
+      Math.random = () => 0.999;
+    });
+    await page.goto(url);
+    await page.locator("#overlayButton").click();
+  }
+  const boardImage = (page) =>
+    page.locator("#gameCanvas").evaluate((canvas) => canvas.toDataURL());
+  for (const [letter, arrow] of [
+    ["KeyA", "ArrowLeft"],
+    ["KeyD", "ArrowRight"],
+    ["KeyW", "ArrowUp"],
+    ["KeyS", "ArrowDown"],
+  ]) {
+    const before = await boardImage(aliases);
+    await aliases.keyboard.press(letter);
+    await arrows.keyboard.press(arrow);
+    await aliases.waitForTimeout(35);
+    assert.notEqual(
+      await boardImage(aliases),
+      before,
+      `${letter} não alterou a peça`,
+    );
+    assert.equal(
+      await boardImage(aliases),
+      await boardImage(arrows),
+      `${letter} difere de ${arrow}`,
+    );
+  }
+  await aliases.close();
+  await arrows.close();
+  console.log("✓ W/A/S/D equivalentes às setas");
 
   const desktop = await browser.newPage({
     viewport: { width: 1280, height: 800 },
@@ -264,6 +372,12 @@ try {
     Math.random = () => 0;
   });
   await session.goto(url);
+  const initialPreview = await session
+    .locator("#nextCanvas")
+    .evaluate((canvas) => canvas.toDataURL());
+  const secondPreview = await session
+    .locator("#secondNextCanvas")
+    .evaluate((canvas) => canvas.toDataURL());
   await session.locator("#overlayButton").click();
   const pixel = () =>
     session
@@ -274,6 +388,13 @@ try {
   const before = await pixel();
   await session.keyboard.press("Space");
   assert.notDeepEqual(await pixel(), before, "Espaço não soltou a peça");
+  assert.equal(
+    await session
+      .locator("#nextCanvas")
+      .evaluate((canvas) => canvas.toDataURL()),
+    secondPreview,
+    "A segunda peça não avançou na fila",
+  );
   await session.locator("#helpButton").click();
   assert.equal(await session.locator("#stateTag").textContent(), "PAUSADO");
   await session.keyboard.press("Space");
@@ -298,6 +419,14 @@ try {
   assert.equal(await session.locator("#stateTag").textContent(), "GAME OVER");
   await session.locator("#overlayButton").click();
   assert.equal(await session.locator("#stateTag").textContent(), "EM JOGO");
+  assert.equal(await session.locator("#combo").textContent(), "—");
+  assert.equal(
+    await session
+      .locator("#nextCanvas")
+      .evaluate((canvas) => canvas.toDataURL()),
+    initialPreview,
+    "Reinício não renovou a fila",
+  );
   await session.close();
 
   const mobile = await browser.newPage({
@@ -342,6 +471,39 @@ try {
   await touchLines.close();
   console.log("✓ limpeza de linha e pausa pelo toque");
 
+  for (const touch of [false, true]) {
+    const page = await browser.newPage({
+      viewport: touch
+        ? { width: 375, height: 812 }
+        : { width: 1280, height: 800 },
+      isMobile: touch,
+      hasTouch: touch,
+    });
+    await page.addInitScript(() => {
+      Math.random = () => 0.999;
+    });
+    await page.goto(url);
+    if (touch) await page.locator("#overlayButton").tap();
+    else await page.locator("#overlayButton").click();
+    await playCombo(page, touch);
+    if (process.env.UI_SCREENSHOTS === "1" && touch)
+      await page.screenshot({ path: "docs/images/mobile-combo.png" });
+    if (touch) await page.locator('[data-action="drop"]').tap();
+    else await page.keyboard.press("Space");
+    assert.equal(
+      await page.locator("#combo").textContent(),
+      "—",
+      "Queda sem limpeza não encerrou o combo",
+    );
+    assert.equal(
+      await page.locator("#score").textContent(),
+      "0250",
+      "Queda sem limpeza mudou a pontuação",
+    );
+    await page.close();
+  }
+  console.log("✓ combo ×2, bônus e encerramento por WASD e toque");
+
   if (process.env.UI_SCREENSHOTS === "1") {
     const showcase = await browser.newContext({
       viewport: { width: 1440, height: 900 },
@@ -355,21 +517,8 @@ try {
     await page.waitForTimeout(1200);
     await page.locator("#overlayButton").click();
     // A captura usa comandos reais; nenhum estado de jogo é fabricado para o portfólio.
-    for (const [offset, rotate] of [
-      [-3, false],
-      [0, false],
-      [3, false],
-      [5, true],
-    ]) {
-      if (rotate) await page.keyboard.press("ArrowUp");
-      for (let i = 0; i < Math.abs(offset); i++)
-        await page.keyboard.press(offset < 0 ? "ArrowLeft" : "ArrowRight");
-      await page.waitForTimeout(100);
-      await page.keyboard.press("Space");
-      await page.waitForTimeout(250);
-    }
-    assert.equal(await page.locator("#score").textContent(), "0100");
-    await page.waitForTimeout(800);
+    await playCombo(page, false, 100);
+    await page.waitForTimeout(150);
     await page.screenshot({ path: "docs/images/gameplay.png" });
     const video = page.video();
     await showcase.close();

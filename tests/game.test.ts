@@ -116,12 +116,82 @@ describe("regras de linhas e peças", () => {
     game.board[0]![4] = 2;
     game.current = { cells: [[1]], x: 0, y: 18 };
     game.next = [
-      [2, 2],
-      [2, 2],
+      [
+        [2, 2],
+        [2, 2],
+      ],
+      game.next[1],
     ];
     expect(ghostY(game)).toBe(19);
     act(game, "drop", () => 0);
     expect(game.phase).toBe("over");
     expect(act(game, "left")).toBe(false);
+  });
+  it("avança a fila mantendo a ordem das duas próximas peças", () => {
+    const game = createGame(() => 0.999);
+    game.phase = "playing";
+    for (let i = 0; i < 14; i++) {
+      const [first, second] = game.next;
+      act(game, "drop", () => 0.999);
+      expect(game.current.cells).toBe(first);
+      expect(game.next[0]).toBe(second);
+      expect(game.next).toHaveLength(2);
+      expect(game.next[0]).not.toBe(game.next[1]);
+      game.board.forEach((row) => row.fill(0));
+    }
+  });
+  it("premia limpezas consecutivas e encerra o combo só ao travar sem limpar", () => {
+    const game = createGame(() => 0.999);
+    game.phase = "playing";
+    const clear = () => {
+      game.board.forEach((row) => row.fill(0));
+      game.board[19]!.fill(2);
+      game.board[19]![9] = 0;
+      game.current = { cells: [[1], [1], [1], [1]], x: 9, y: 0 };
+      act(game, "drop", () => 0.999);
+    };
+    clear();
+    expect(game.combo).toBe(1);
+    expect(game.comboBonus).toBe(0);
+    expect(game.score).toBe(100);
+    act(game, "left");
+    act(game, "rotate");
+    act(game, "down");
+    expect(game.combo).toBe(1);
+    game.phase = "paused";
+    expect(act(game, "drop")).toBe(false);
+    expect(game.combo).toBe(1);
+    game.phase = "playing";
+    clear();
+    expect(game.combo).toBe(2);
+    expect(game.comboBonus).toBe(50);
+    expect(game.score).toBe(250);
+    clear();
+    expect(game.combo).toBe(3);
+    expect(game.comboBonus).toBe(100);
+    expect(game.score).toBe(450);
+    game.board.forEach((row) => row.fill(0));
+    act(game, "drop", () => 0.999);
+    expect(game.combo).toBe(0);
+    expect(game.comboBonus).toBe(0);
+    expect(game.score).toBe(450);
+    clear();
+    expect(game.combo).toBe(1);
+    expect(game.score).toBe(550);
+    expect(createGame().combo).toBe(0);
+  });
+  it("calcula bônus com o nível da jogada, inclusive quando ela avança o nível", () => {
+    const game = createGame(() => 0.999);
+    game.phase = "playing";
+    game.level = 2;
+    game.cleared = 19;
+    game.combo = 1;
+    game.board[19]!.fill(2);
+    game.board[19]![9] = 0;
+    game.current = { cells: [[1], [1], [1], [1]], x: 9, y: 0 };
+    act(game, "drop", () => 0.999);
+    expect(game.score).toBe(300);
+    expect(game.comboBonus).toBe(100);
+    expect(game.level).toBe(3);
   });
 });

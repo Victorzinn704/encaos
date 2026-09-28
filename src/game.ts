@@ -6,12 +6,14 @@ export type Piece = { cells: Matrix; x: number; y: number };
 export type Game = {
   board: Matrix;
   current: Piece;
-  next: Matrix;
+  next: [Matrix, Matrix];
   bag: Matrix[];
   score: number;
   level: number;
   cleared: number;
   lastClear: number[];
+  combo: number;
+  comboBonus: number;
   phase: Phase;
   message: string;
 };
@@ -64,12 +66,14 @@ export function createGame(random: () => number = Math.random): Game {
   return {
     board: Array.from({ length: ROWS }, () => Array(COLS).fill(0) as number[]),
     current: atSpawn(takePiece(bag, random)),
-    next: takePiece(bag, random),
+    next: [takePiece(bag, random), takePiece(bag, random)],
     bag,
     score: 0,
     level: 1,
     cleared: 0,
     lastClear: [],
+    combo: 0,
+    comboBonus: 0,
     phase: "ready",
     message: "Complete uma linha com dez blocos para limpar o tabuleiro.",
   };
@@ -124,16 +128,26 @@ function settle(game: Game, random: () => number): void {
     }),
   );
   game.lastClear = clearLines(game.board);
+  game.comboBonus = 0;
   if (game.lastClear.length) {
     const count = game.lastClear.length;
     const points = [0, 100, 300, 500, 800][count]! * game.level;
-    game.score += points;
+    // Só limpar linhas em peças consecutivas prolonga a sequência; mover ou pausar não a quebra.
+    game.combo++;
+    game.comboBonus = (game.combo - 1) * 50 * game.level;
+    game.score += points + game.comboBonus;
     game.cleared += count;
     game.level = 1 + Math.floor(game.cleared / 10);
-    game.message = `${count === 1 ? "Linha limpa" : `${count} linhas limpas`}! +${points} pontos.`;
+    game.message = `${count === 1 ? "Linha limpa" : `${count} linhas limpas`}! +${points} pontos.${game.comboBonus ? ` Combo ×${game.combo}: +${game.comboBonus} extra!` : ""}`;
+  } else {
+    game.message =
+      game.combo > 0
+        ? "Sequência encerrada. Complete outra linha!"
+        : "Complete linhas de ponta a ponta.";
+    game.combo = 0;
   }
-  game.current = atSpawn(game.next);
-  game.next = takePiece(game.bag, random);
+  game.current = atSpawn(game.next[0]);
+  game.next = [game.next[1], takePiece(game.bag, random)];
   if (collides(game.board, game.current.cells, game.current.x, 0)) {
     game.phase = "over";
     game.message = "A pilha chegou ao topo. Tente novamente.";

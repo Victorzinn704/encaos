@@ -21,7 +21,10 @@ function context(id: string): CanvasRenderingContext2D {
   return ctx;
 }
 const boardCtx = context("gameCanvas"),
-  nextCtx = context("nextCanvas");
+  nextCtx = context("nextCanvas"),
+  secondNextCtx = context("secondNextCanvas"),
+  mobileNextCtx = context("mobileNextCanvas"),
+  mobileSecondNextCtx = context("mobileSecondNextCanvas");
 const effects = new BoardEffects(),
   audio = new GameAudio();
 const actionButtons = Array.from(
@@ -37,6 +40,7 @@ let lastTime = 0,
   elapsed = 0;
 let highScore = readHighScore();
 let celebrateTimer: number | undefined;
+let comboTimer: number | undefined;
 
 function readHighScore(): number {
   try {
@@ -72,7 +76,10 @@ function renderUI(): void {
   document.body.dataset.phase = game.phase;
   // A prévia muda só ao nascer uma peça, não a cada movimento.
   if (renderedNext !== game.next) {
-    drawNext(nextCtx, game.next);
+    drawNext(nextCtx, game.next[0]);
+    drawNext(secondNextCtx, game.next[1]);
+    drawNext(mobileNextCtx, game.next[0]);
+    drawNext(mobileSecondNextCtx, game.next[1]);
     renderedNext = game.next;
   }
   for (const id of ["score", "miniScore"])
@@ -81,6 +88,13 @@ function renderUI(): void {
     text(id, String(game.level).padStart(2, "0"));
   text("cleared", String(game.cleared).padStart(2, "0"));
   text("highScore", String(highScore).padStart(4, "0"));
+  text("combo", game.combo > 0 ? `×${game.combo}` : "—");
+  text("miniCombo", game.combo > 0 ? `×${game.combo}` : "—");
+  text(
+    "comboBonus",
+    game.comboBonus ? `+${game.comboBonus} EXTRA` : "LIMPE LINHAS SEGUIDAS",
+  );
+  element("comboStatus").classList.toggle("has-combo", game.combo > 1);
   text("progressText", `${game.cleared % 10} / 10`);
   element("progressFill").style.width = `${(game.cleared % 10) * 10}%`;
   text("statusText", game.message);
@@ -113,12 +127,14 @@ function renderUI(): void {
       "Jogar novamente",
     );
   drawBoard(boardCtx, game, visual);
+  if (game.phase !== "playing") hideComboNotice();
 }
 function startOrRestart(): void {
   if (game.phase === "over") {
     game = createGame();
     effects.reset();
   }
+  hideComboNotice();
   game.phase = "playing";
   game.message = "Complete linhas de ponta a ponta.";
   visual = { ...game.current };
@@ -130,6 +146,7 @@ function startOrRestart(): void {
   renderUI();
 }
 function togglePause(): void {
+  hideComboNotice();
   if (game.phase === "playing") {
     game.phase = "paused";
     game.message = "Jogo pausado.";
@@ -149,6 +166,31 @@ function togglePause(): void {
   renderUI();
 }
 type Action = "left" | "right" | "rotate" | "down" | "drop";
+function hideComboNotice(): void {
+  clearTimeout(comboTimer);
+  element("comboNotice").classList.remove("is-visible");
+}
+function showComboNotice(): void {
+  const notice = element("comboNotice");
+  const title =
+    game.combo > 1
+      ? `COMBO ×${game.combo}`
+      : game.lastClear.length === 1
+        ? "LINHA LIMPA!"
+        : `${game.lastClear.length} LINHAS!`;
+  text("comboNoticeTitle", title);
+  text(
+    "comboNoticeBonus",
+    game.comboBonus ? `+${game.comboBonus} DE BÔNUS` : "BOM ENCAIXE",
+  );
+  hideComboNotice();
+  void notice.offsetWidth;
+  notice.classList.add("is-visible");
+  comboTimer = window.setTimeout(
+    () => notice.classList.remove("is-visible"),
+    1100,
+  );
+}
 function perform(action: Action, userAction = true): void {
   const previousPiece = game.current;
   const previous = { ...previousPiece },
@@ -163,7 +205,8 @@ function perform(action: Action, userAction = true): void {
   }
   if (game.score > previousScore) {
     effects.clear(game.lastClear);
-    audio.play("clear");
+    audio.play(game.combo > 1 ? "combo" : "clear");
+    if (game.phase === "playing") showComboNotice();
     document.querySelector(".cabinet")!.classList.add("celebrate");
     clearTimeout(celebrateTimer);
     celebrateTimer = window.setTimeout(
@@ -175,6 +218,8 @@ function perform(action: Action, userAction = true): void {
     audio.play(
       action === "drop" ? "drop" : action === "rotate" ? "rotate" : "move",
     );
+  if (game.current !== previousPiece && !game.lastClear.length)
+    hideComboNotice();
   saveHighScore();
   renderUI();
 }
@@ -183,13 +228,18 @@ const keys: Record<string, Action> = {
   ArrowRight: "right",
   ArrowUp: "rotate",
   ArrowDown: "down",
+  KeyA: "left",
+  KeyD: "right",
+  KeyW: "rotate",
+  KeyS: "down",
   Space: "drop",
 };
 document.addEventListener("keydown", (event) => {
+  if (event.ctrlKey || event.metaKey || event.altKey) return;
   // Segurar a tecla não deve disparar várias quedas, rotações ou trocas de pausa.
   if (
     event.repeat &&
-    ["Space", "ArrowUp", "KeyP", "Enter"].includes(event.code)
+    ["Space", "ArrowUp", "KeyW", "KeyP", "Enter"].includes(event.code)
   )
     return;
   if (

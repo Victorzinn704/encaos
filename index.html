@@ -97,6 +97,29 @@
               </div>
             </div>
 
+            <section class="mobile-next" aria-label="Duas próximas peças">
+              <span class="mobile-next-heading">NA FILA</span>
+              <figure>
+                <canvas
+                  id="mobileNextCanvas"
+                  width="120"
+                  height="75"
+                  role="img"
+                  aria-label="Primeira próxima peça"
+                ></canvas>
+                <figcaption>01</figcaption>
+              </figure>
+              <figure>
+                <canvas
+                  id="mobileSecondNextCanvas"
+                  width="120"
+                  height="75"
+                  role="img"
+                  aria-label="Segunda próxima peça"
+                ></canvas>
+                <figcaption>02</figcaption>
+              </figure>
+            </section>
             <div class="mission-note">
               <span class="note-icon" aria-hidden="true">◈</span>
               <p>
@@ -116,8 +139,9 @@
               ><span id="stateTag" class="state-tag">AGUARDANDO</span>
             </div>
             <div class="mobile-stats" aria-label="Placar rápido">
-              <span>PTS <strong id="miniScore">0000</strong></span
-              ><span>NÍVEL <strong id="miniLevel">01</strong></span>
+              <span>PTS <strong id="miniScore">0000</strong></span>
+              <span>COMBO <strong id="miniCombo">—</strong></span>
+              <span>NÍVEL <strong id="miniLevel">01</strong></span>
             </div>
             <div class="board-well">
               <div class="board-side" aria-hidden="true">
@@ -132,6 +156,10 @@
                   role="img"
                   aria-label="Tabuleiro de dez colunas e vinte linhas"
                 ></canvas>
+                <div id="comboNotice" class="combo-notice" aria-hidden="true">
+                  <strong id="comboNoticeTitle"></strong
+                  ><span id="comboNoticeBonus"></span>
+                </div>
                 <div id="overlay" class="board-overlay">
                   <div class="overlay-card">
                     <div class="overlay-symbol" aria-hidden="true">↧</div>
@@ -187,20 +215,39 @@
               </div>
               <div class="progress-track"><span id="progressFill"></span></div>
             </div>
+            <div id="comboStatus" class="combo-status">
+              <div>
+                <span>COMBO</span
+                ><small id="comboBonus">LIMPE LINHAS SEGUIDAS</small>
+              </div>
+              <strong id="combo">—</strong>
+            </div>
             <div class="dashboard-divider"></div>
-            <section class="next-piece" aria-label="Próximo bloco">
+            <section class="next-piece" aria-label="Duas próximas peças">
               <div class="dashboard-heading">
                 <span>NA FILA</span><span>↘</span>
               </div>
               <div class="next-content">
-                <canvas
-                  id="nextCanvas"
-                  width="120"
-                  height="75"
-                  role="img"
-                  aria-label="Prévia do próximo bloco"
-                ></canvas
-                ><span>Próximo<br />bloco</span>
+                <figure>
+                  <canvas
+                    id="nextCanvas"
+                    width="120"
+                    height="75"
+                    role="img"
+                    aria-label="Primeira próxima peça"
+                  ></canvas>
+                  <figcaption>01 · A SEGUIR</figcaption>
+                </figure>
+                <figure>
+                  <canvas
+                    id="secondNextCanvas"
+                    width="120"
+                    height="75"
+                    role="img"
+                    aria-label="Segunda próxima peça"
+                  ></canvas>
+                  <figcaption>02 · DEPOIS</figcaption>
+                </figure>
               </div>
             </section>
             <section
@@ -211,10 +258,10 @@
                 <span>COMO JOGAR</span><span>⌨</span>
               </div>
               <div class="control-row">
-                <span>Mover</span><span><kbd>←</kbd><kbd>→</kbd></span>
+                <span>Mover</span><span><kbd>A / ←</kbd><kbd>D / →</kbd></span>
               </div>
-              <div class="control-row"><span>Girar</span><kbd>↑</kbd></div>
-              <div class="control-row"><span>Descer</span><kbd>↓</kbd></div>
+              <div class="control-row"><span>Girar</span><kbd>W / ↑</kbd></div>
+              <div class="control-row"><span>Descer</span><kbd>S / ↓</kbd></div>
               <div class="control-row">
                 <span>Soltar</span><kbd>ESPAÇO</kbd>
               </div>
@@ -260,7 +307,7 @@
           <span
             >SYNTIL <span aria-hidden="true">✳</span> UMA LINHA DE CADA
             VEZ</span
-          ><span>BUILD 03 / BROWSER GAME</span>
+          ><span>BUILD 04 / BROWSER GAME</span>
         </footer>
       </main>
     </div>
@@ -278,10 +325,17 @@
         multiplicados pelo nível. A cada dez linhas o jogo fica mais rápido.
       </p>
       <p>
-        <kbd>← →</kbd> mover · <kbd>↑</kbd> girar · <kbd>↓</kbd> descer ·
-        <kbd>ESPAÇO</kbd> soltar · <kbd>P</kbd> pausar.
+        <kbd>A D / ← →</kbd> mover · <kbd>W / ↑</kbd> girar ·
+        <kbd>S / ↓</kbd> descer · <kbd>ESPAÇO</kbd> soltar ·
+        <kbd>P</kbd> pausar.
       </p>
       <p>A partida pausa enquanto esta ajuda está aberta.</p>
+      <p>
+        As duas próximas peças aparecem na ordem em que vão cair. Limpe linhas
+        em quedas consecutivas para fazer combos: ×2 dá +50 pontos extras, ×3 dá
+        +100, e assim por diante, multiplicados pelo nível. Uma peça que trava
+        sem limpar linhas encerra a sequência.
+      </p>
     </dialog>
     <script type="module" src="/src/main.ts"></script>
   </body>

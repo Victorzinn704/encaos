@@ -1,10 +1,11 @@
-type Cue = "start" | "move" | "rotate" | "drop" | "clear" | "over";
+type Cue = "start" | "move" | "rotate" | "drop" | "clear" | "combo" | "over";
 const tones: Record<Cue, number[]> = {
   start: [220, 330, 440],
   move: [180],
   rotate: [330, 440],
   drop: [120, 65],
   clear: [440, 554, 659, 880],
+  combo: [523, 659, 784, 1046],
   over: [220, 165, 110],
 };
 // O contexto só é criado após uma ação explícita, com som desligado por padrão.
