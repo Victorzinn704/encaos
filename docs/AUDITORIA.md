@@ -1,4 +1,4 @@
-# Auditoria: linhas e interface restaurada
+# Auditoria: linhas, controles e combos
 
 Data: 27/09/2026. Validação local em Chromium sobre o build estático.
 
@@ -10,15 +10,25 @@ As linhas acima descem juntas. Os espaços vazios dentro delas permanecem vazios
 
 Objetivo, ajuda, contador, progresso e mensagens foram atualizados. O recorde por linhas tem uma chave própria; os registros do modo de padrões não são apagados.
 
+## Controles, fila e combo
+
+W/A/S/D equivalem a girar, mover à esquerda, descer e mover à direita. As setas continuam disponíveis. Segurar W não causa rotações repetidas, e atalhos com Ctrl, Alt ou Meta não são consumidos pelo jogo.
+
+A fila guarda duas peças, mostradas em ordem no desktop e no celular. Ao travar, a primeira vira a peça atual, a segunda avança e uma nova peça entra no fim da fila.
+
+O combo conta peças consecutivas que limpam linhas. A primeira limpeza inicia ×1 sem bônus; ×2 acrescenta 50 pontos × nível, ×3 acrescenta 100 × nível. Uma peça travada sem limpeza zera a sequência. Movimentos, rotação e pausa não a encerram. O bônus usa o nível anterior ao eventual avanço dessa mesma jogada.
+
+O indicador aparece no placar e no placar móvel. Um aviso temporário e o som opcional acompanham o encaixe. A animação do aviso respeita movimento reduzido.
+
 ## Restauração visual
 
 HTML, estilos, cores dos blocos e favicon foram recuperados de `ce7bb1d`, a revisão anterior inspirada no InterpretaAI. Foram mantidos o nome SYNTIL e os ajustes de enquadramento na janela. Os painéis voltaram a ser verde-lima e creme, com a tipografia, cartões e ilustração de blocos anteriores.
 
-A interface futurista e o fundo animado da revisão seguinte foram retirados. O feedback agora acompanha ações da partida: movimento das peças, queda e limpeza de linhas. [Desktop](images/desktop.png), [celular](images/mobile.png) e [vídeo com uma linha eliminada](images/gameplay.webm).
+A interface futurista e o fundo animado da revisão seguinte foram retirados. O feedback acompanha ações da partida: movimento das peças, queda e limpeza de linhas. [Desktop](images/desktop.png), [celular](images/mobile.png), [combo no celular](images/mobile-combo.png) e [vídeo com combo ×2](images/gameplay.webm).
 
 ## Evidência das regras
 
-Sete testes verificam:
+Dez testes verificam:
 
 - bordas, colisão e independência das linhas;
 - rotação sem mutação e ajuste perto da parede;
@@ -27,14 +37,19 @@ Sete testes verificam:
 - quatro linhas eliminadas, pontuação e avanço de nível;
 - sete formatos de quatro blocos sem repetição na sacola;
 - fim de jogo e bloqueio de ações fora da partida.
+- ordem das duas prévias durante 14 peças, incluindo renovação da sacola;
+- bônus, avanço e encerramento do combo, preservação durante movimentos e pausa;
+- pontuação de combo na jogada que avança o nível.
 
-O teste no navegador fecha uma linha com **I + O + T + S** usando comandos reais. Confere o contador, os 100 pontos e uma casa que estava ocupada e ficou vazia. Esse fluxo é executado por teclado e por toque. O vídeo registra a mesma jogada.
+O teste no navegador fecha uma linha com **I + O + T + S** usando comandos reais e verifica o contador, os 100 pontos e a casa que ficou vazia. Outro fluxo joga **I, O, T, S, Z e J**, com limpezas nas duas últimas quedas: o placar soma 250 pontos, o combo mostra ×2 e o bônus mostra +50. A queda seguinte sem limpeza encerra a sequência. Os dois fluxos rodam por teclado e por toque; o vídeo registra o combo sem fabricar estado do tabuleiro.
+
+Uma comparação de imagens do tabuleiro confirma que W/A/S/D produzem os mesmos movimentos que as quatro setas. O teste também verifica que a segunda prévia avança para a primeira e que reiniciar renova a fila e zera o combo.
 
 ## Interface
 
 Dimensões: **1920 × 1080, 1440 × 900, 1280 × 800, 1024 × 768, 820 × 900, 768 × 900, 641 × 900, 640 × 900, 390 × 844, 375 × 812, 320 × 568 e 844 × 390**.
 
-O script verifica proporção 1:2, ausência de rolagem da página, tabuleiro e controles dentro da janela, instrução dentro do cartão e abertura dentro do tabuleiro. Também exercita ajuda e pausa, reinício, recorde após recarregar, som opcional, tela cheia e movimento reduzido.
+O script verifica proporção 1:2, ausência de rolagem da página, tabuleiro, duas prévias e controles dentro da janela, instrução dentro do cartão e abertura dentro do tabuleiro. Também exercita ajuda e pausa, reinício, recorde após recarregar, som opcional, tela cheia e movimento reduzido.
 
 ```bash
 npm test
