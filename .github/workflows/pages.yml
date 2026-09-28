@@ -32,6 +32,8 @@ jobs:
         run: npm ci
       - name: Testar regras
         run: npm test
+      - name: Conferir formatação
+        run: npm run format:check
       - name: Compilar jogo
         run: npm run build
       - name: Instalar Chromium
