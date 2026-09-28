@@ -1,16 +1,14 @@
-import { COLS, ROWS, VOID, ghostY, type Game, type Matrix } from "./game";
-import { PATTERNS, type Pattern } from "./patterns";
+import { COLS, ROWS, ghostY, type Game, type Matrix } from "./game";
 
 const SIZE = 30;
 const COLORS: Record<number, string> = {
-  1: "#9dd8ff",
-  2: "#b0a1fa",
-  3: "#f39c8d",
-  4: "#75d3d0",
-  5: "#e2c293",
-  6: "#819fef",
-  7: "#cb9fce",
-  [VOID]: "#384660",
+  1: "#d8ff45",
+  2: "#bda7ff",
+  3: "#ff806e",
+  4: "#75dce3",
+  5: "#ffe483",
+  6: "#7dafef",
+  7: "#f3a9d9",
 };
 
 function cell(
@@ -58,9 +56,9 @@ export function drawBoard(
   game: Game,
   position = game.current,
 ): void {
-  ctx.fillStyle = "#0d1320";
+  ctx.fillStyle = "#181727";
   ctx.fillRect(0, 0, COLS * SIZE, ROWS * SIZE);
-  ctx.strokeStyle = "#1b273b";
+  ctx.strokeStyle = "#34314b";
   ctx.lineWidth = 1;
   for (let x = 0; x <= COLS; x++) {
     ctx.beginPath();
@@ -87,29 +85,8 @@ export function drawBoard(
   }
 }
 
-export function drawPattern(
-  ctx: CanvasRenderingContext2D,
-  target: Pattern,
-): void {
-  ctx.fillStyle = "#101828";
-  ctx.fillRect(0, 0, 120, 120);
-  const size = 19;
-  const offset = 12;
-  target.cells.forEach((row, y) =>
-    row.forEach((value, x) => {
-      ctx.fillStyle = value ? "#b0a1fa" : "#24314a";
-      ctx.fillRect(
-        offset + x * size + 1,
-        offset + y * size + 1,
-        size - 3,
-        size - 3,
-      );
-    }),
-  );
-}
-
 export function drawNext(ctx: CanvasRenderingContext2D, matrix: Matrix): void {
-  ctx.fillStyle = "#111827";
+  ctx.fillStyle = "#29243c";
   ctx.fillRect(0, 0, 120, 75);
   const size = 22;
   const width = matrix[0]!.length * size;
@@ -120,8 +97,4 @@ export function drawNext(ctx: CanvasRenderingContext2D, matrix: Matrix): void {
       if (value) cell(ctx, x0 + x * size, y0 + y * size, size, COLORS[value]!);
     }),
   );
-}
-
-export function patternNumber(target: Pattern): string {
-  return String(PATTERNS.indexOf(target) + 1).padStart(2, "0");
 }

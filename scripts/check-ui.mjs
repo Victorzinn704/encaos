@@ -48,6 +48,50 @@ async function waitForPreview() {
 
 let browser;
 
+async function completeLine(page, touch = false) {
+  const input = async (action) => {
+    if (touch) await page.locator(`[data-action="${action}"]`).tap();
+    else
+      await page.keyboard.press(
+        {
+          left: "ArrowLeft",
+          right: "ArrowRight",
+          rotate: "ArrowUp",
+          drop: "Space",
+        }[action],
+      );
+  };
+  // Sacola sem embaralhar: I + O + T + S fecham a base usando só controles reais.
+  for (const [offset, rotate] of [
+    [-3, false],
+    [0, false],
+    [3, false],
+    [5, true],
+  ]) {
+    if (rotate) await input("rotate");
+    for (let i = 0; i < Math.abs(offset); i++)
+      await input(offset < 0 ? "left" : "right");
+    await input("drop");
+  }
+  assert.equal(
+    await page.locator("#score").textContent(),
+    "0100",
+    "Linha completa não pontuou",
+  );
+  assert.equal(
+    await page.locator("#cleared").textContent(),
+    "01",
+    "Linha completa não foi contabilizada",
+  );
+  await page.waitForTimeout(650);
+  const cleared = await page
+    .locator("#gameCanvas")
+    .evaluate((canvas) => [
+      ...canvas.getContext("2d").getImageData(15, 585, 1, 1).data,
+    ]);
+  assert.deepEqual(cleared, [24, 23, 39, 255], "A linha cheia não desapareceu");
+}
+
 try {
   await waitForPreview();
   browser = await chromium.launch({ headless: true });
@@ -98,6 +142,8 @@ try {
         cabinet: bounds(".cabinet"),
         board: bounds("#gameCanvas"),
         target: bounds(".target-panel"),
+        targetCopy: bounds(".target-copy"),
+        overlay: bounds(".overlay-card"),
         touch: bounds(".touch-controls"),
       };
     });
@@ -115,6 +161,15 @@ try {
       `${width}px: tabuleiro fora da janela`,
     );
     assert.deepEqual(errors, [], `${width}px: erro de JavaScript`);
+    assert.ok(
+      layout.targetCopy.bottom <= layout.target.bottom - 2,
+      `${width}px: instrução escapa do painel`,
+    );
+    assert.ok(
+      layout.overlay.top >= layout.board.top &&
+        layout.overlay.bottom <= layout.board.bottom,
+      `${width}px: abertura escapa do tabuleiro`,
+    );
     if (width >= 1200)
       assert.ok(
         layout.cabinet.bottom <= height + 1,
@@ -137,10 +192,10 @@ try {
     }
     if (
       process.env.UI_SCREENSHOTS === "1" &&
-      (width === 1440 || width === 375)
+      [1440, 375, 320, 844].includes(width)
     ) {
       await page.screenshot({
-        path: `docs/images/${width === 1440 ? "desktop" : "mobile"}.png`,
+        path: `docs/images/${{ 1440: "desktop", 375: "mobile", 320: "mobile-small", 844: "landscape" }[width]}.png`,
         fullPage: width === 1440,
       });
     }
@@ -152,21 +207,6 @@ try {
     viewport: { width: 1280, height: 800 },
   });
   await desktop.goto(url);
-  const ambient = () =>
-    desktop.locator("#ambientCanvas").evaluate((canvas) => canvas.toDataURL());
-  const firstFrame = await ambient();
-  await desktop.waitForTimeout(250);
-  assert.notEqual(
-    await ambient(),
-    firstFrame,
-    "Ambiente não se move antes de iniciar",
-  );
-  await desktop.locator("#projectButton").click();
-  assert.equal(
-    await desktop.locator("#projectDialog").evaluate((dialog) => dialog.open),
-    true,
-  );
-  await desktop.keyboard.press("Escape");
   await desktop.locator("#soundButton").click();
   await desktop.waitForFunction(
     () =>
@@ -188,28 +228,33 @@ try {
     viewport: { width: 1280, height: 800 },
     reducedMotion: "reduce",
   });
+  await reduced.addInitScript(() => {
+    Math.random = () => 0.999;
+  });
   await reduced.goto(url);
-  await reduced.waitForTimeout(100);
-  const still = await reduced
-    .locator("#ambientCanvas")
-    .evaluate((canvas) => canvas.toDataURL());
-  await reduced.waitForTimeout(250);
   assert.equal(
     await reduced
-      .locator("#ambientCanvas")
-      .evaluate((canvas) => canvas.toDataURL()),
-    still,
-    "Movimento reduzido não respeitado",
+      .locator(".progress-track span")
+      .evaluate((node) => getComputedStyle(node).transitionDuration),
+    "0s",
   );
+  await reduced.locator("#overlayButton").click();
+  await completeLine(reduced);
   assert.equal(
     await reduced
-      .locator(".aurora")
+      .locator(".target-panel")
       .evaluate((node) => getComputedStyle(node).animationName),
     "none",
   );
+  await reduced.reload();
+  assert.equal(
+    await reduced.locator("#highScore").textContent(),
+    "0100",
+    "Recorde não persistiu",
+  );
   await reduced.close();
   console.log(
-    "✓ ambiente animado, movimento reduzido, painel do projeto, som opcional e tela cheia",
+    "✓ limpeza por teclado, recorde, movimento reduzido, som opcional e tela cheia",
   );
 
   const session = await browser.newPage({
@@ -243,7 +288,13 @@ try {
   assert.equal(await session.locator("#stateTag").textContent(), "PAUSADO");
   await session.locator("#overlayButton").click();
   assert.equal(await session.locator("#stateTag").textContent(), "EM JOGO");
-  for (let i = 0; i < 19; i++) await session.keyboard.press("Space");
+  for (
+    let i = 0;
+    i < 40 &&
+    (await session.locator("#stateTag").textContent()) !== "GAME OVER";
+    i++
+  )
+    await session.keyboard.press("Space");
   assert.equal(await session.locator("#stateTag").textContent(), "GAME OVER");
   await session.locator("#overlayButton").click();
   assert.equal(await session.locator("#stateTag").textContent(), "EM JOGO");
@@ -275,24 +326,49 @@ try {
   await mobile.close();
   console.log("✓ teclado, pausa, fim de jogo, reinício e toque");
 
+  const touchLines = await browser.newPage({
+    viewport: { width: 375, height: 812 },
+    isMobile: true,
+    hasTouch: true,
+  });
+  await touchLines.addInitScript(() => {
+    Math.random = () => 0.999;
+  });
+  await touchLines.goto(url);
+  await touchLines.locator("#overlayButton").tap();
+  await completeLine(touchLines, true);
+  await touchLines.locator("#mobilePauseButton").tap();
+  assert.equal(await touchLines.locator("#stateTag").textContent(), "PAUSADO");
+  await touchLines.close();
+  console.log("✓ limpeza de linha e pausa pelo toque");
+
   if (process.env.UI_SCREENSHOTS === "1") {
     const showcase = await browser.newContext({
       viewport: { width: 1440, height: 900 },
       recordVideo: { dir: "docs/images", size: { width: 1440, height: 900 } },
     });
     const page = await showcase.newPage();
+    await page.addInitScript(() => {
+      Math.random = () => 0.999;
+    });
     await page.goto(url);
     await page.waitForTimeout(1200);
     await page.locator("#overlayButton").click();
     // A captura usa comandos reais; nenhum estado de jogo é fabricado para o portfólio.
-    for (const offset of [-4, 2, -1, 4, -3, 0, 3, -2, 1, -4, 2, 0]) {
+    for (const [offset, rotate] of [
+      [-3, false],
+      [0, false],
+      [3, false],
+      [5, true],
+    ]) {
+      if (rotate) await page.keyboard.press("ArrowUp");
       for (let i = 0; i < Math.abs(offset); i++)
         await page.keyboard.press(offset < 0 ? "ArrowLeft" : "ArrowRight");
-      await page.keyboard.press("ArrowUp");
       await page.waitForTimeout(100);
       await page.keyboard.press("Space");
-      await page.waitForTimeout(240);
+      await page.waitForTimeout(250);
     }
+    assert.equal(await page.locator("#score").textContent(), "0100");
     await page.waitForTimeout(800);
     await page.screenshot({ path: "docs/images/gameplay.png" });
     const video = page.video();

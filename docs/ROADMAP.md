@@ -2,11 +2,12 @@
 
 ## Implementado e validado localmente
 
-- Nome SYNTIL, marca e arena de janela inteira.
+- Interface anterior inspirada no InterpretaAI restaurada, com o nome SYNTIL e enquadramento na janela.
 - 12 tamanhos de janela, incluindo celular pequeno e paisagem.
-- Ambiente animado, interpolação, feedback de queda e movimento reduzido.
-- Som opcional, tela cheia, ajuda e painel de engenharia.
-- Teclado, toque, pausa, reinício e recorde local preservado da versão anterior.
+- Sete tetrominós em sacolas, limpeza simples e múltipla, descida da pilha e pontuação por linhas.
+- Interpolação, feedback de queda e limpeza, com movimento reduzido.
+- Som opcional, tela cheia e ajuda com as regras atualizadas.
+- Teclado, toque, pausa, reinício e recorde local separado para o modo de linhas.
 - Motor separado, testes, formatação e workflow de Pages.
 
 ## Próximos critérios de entrega
