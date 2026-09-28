@@ -20,13 +20,29 @@ export type Game = {
 
 // O bloco vazio ocupa espaço ao cair, mas equivale a uma lacuna na conferência do padrão.
 export const SHAPES: readonly (readonly (readonly number[])[])[] = [
-  [[1]], [[2, 2]], [[3], [3]], [[4, 4], [4, 4]], [[5, 5, 5]], [[6, 6, 6, 6]],
-  [[7, 0], [7, 7]], [[VOID]], [[VOID, VOID]],
+  [[1]],
+  [[2, 2]],
+  [[3], [3]],
+  [
+    [4, 4],
+    [4, 4],
+  ],
+  [[5, 5, 5]],
+  [[6, 6, 6, 6]],
+  [
+    [7, 0],
+    [7, 7],
+  ],
+  [[VOID]],
+  [[VOID, VOID]],
 ];
 
-const copy = (matrix: readonly (readonly number[])[]): Matrix => matrix.map((row) => [...row]);
+const copy = (matrix: readonly (readonly number[])[]): Matrix =>
+  matrix.map((row) => [...row]);
 const pick = <T>(items: readonly T[], random: () => number): T =>
-  items[Math.min(items.length - 1, Math.max(0, Math.floor(random() * items.length)))]!;
+  items[
+    Math.min(items.length - 1, Math.max(0, Math.floor(random() * items.length)))
+  ]!;
 
 export function createGame(random: () => number = Math.random): Game {
   const cells = copy(pick(SHAPES, random));
@@ -35,18 +51,32 @@ export function createGame(random: () => number = Math.random): Game {
     current: { cells, x: Math.floor((COLS - cells[0]!.length) / 2), y: 0 },
     next: copy(pick(SHAPES, random)),
     target: pick(PATTERNS, random),
-    score: 0, level: 1, cleared: 0, phase: "ready",
+    score: 0,
+    level: 1,
+    cleared: 0,
+    phase: "ready",
     message: "Monte o desenho alvo em qualquer área 5 × 5 do tabuleiro.",
   };
 }
 
-export function collides(board: Matrix, cells: Matrix, x: number, y: number): boolean {
+export function collides(
+  board: Matrix,
+  cells: Matrix,
+  x: number,
+  y: number,
+): boolean {
   for (let row = 0; row < cells.length; row++) {
     for (let col = 0; col < cells[row]!.length; col++) {
       if (!cells[row]![col]) continue;
       const bx = x + col;
       const by = y + row;
-      if (bx < 0 || bx >= COLS || by >= ROWS || (by >= 0 && board[by]![bx] !== 0)) return true;
+      if (
+        bx < 0 ||
+        bx >= COLS ||
+        by >= ROWS ||
+        (by >= 0 && board[by]![bx] !== 0)
+      )
+        return true;
     }
   }
   return false;
@@ -56,17 +86,27 @@ export function rotate(cells: Matrix): Matrix {
   return cells[0]!.map((_, col) => cells.map((row) => row[col]!).reverse());
 }
 
-export function matchesAt(board: Matrix, pattern: Pattern, startY: number, startX: number): boolean {
+export function matchesAt(
+  board: Matrix,
+  pattern: Pattern,
+  startY: number,
+  startX: number,
+): boolean {
   for (let y = 0; y < 5; y++) {
     for (let x = 0; x < 5; x++) {
-      const occupied = board[startY + y]![startX + x] !== 0 && board[startY + y]![startX + x] !== VOID;
+      const occupied =
+        board[startY + y]![startX + x] !== 0 &&
+        board[startY + y]![startX + x] !== VOID;
       if (occupied !== (pattern.cells[y]![x] === 1)) return false;
     }
   }
   return true;
 }
 
-export function findMatch(board: Matrix, pattern: Pattern): { x: number; y: number } | null {
+export function findMatch(
+  board: Matrix,
+  pattern: Pattern,
+): { x: number; y: number } | null {
   for (let y = 0; y <= ROWS - 5; y++) {
     for (let x = 0; x <= COLS - 5; x++) {
       if (matchesAt(board, pattern, y, x)) return { x, y };
@@ -86,7 +126,8 @@ function lock(game: Game): void {
   const { cells, x, y } = game.current;
   for (let row = 0; row < cells.length; row++) {
     for (let col = 0; col < cells[row]!.length; col++) {
-      if (cells[row]![col] && y + row >= 0) game.board[y + row]![x + col] = cells[row]![col]!;
+      if (cells[row]![col] && y + row >= 0)
+        game.board[y + row]![x + col] = cells[row]![col]!;
     }
   }
 }
@@ -97,7 +138,7 @@ function spawn(game: Game, random: () => number): void {
   game.next = copy(pick(SHAPES, random));
   if (collides(game.board, cells, game.current.x, 0)) {
     game.phase = "over";
-    game.message = "Stack overflow: o próximo bloco não cabe.";
+    game.message = "Sinal interrompido: a próxima peça não cabe.";
   }
 }
 
@@ -127,7 +168,11 @@ export function ghostY(game: Game): number {
   return y;
 }
 
-export function act(game: Game, action: "left" | "right" | "rotate" | "down" | "drop", random: () => number = Math.random): boolean {
+export function act(
+  game: Game,
+  action: "left" | "right" | "rotate" | "down" | "drop",
+  random: () => number = Math.random,
+): boolean {
   if (game.phase !== "playing") return false;
   const piece = game.current;
   if (action === "left" || action === "right") {
@@ -136,7 +181,9 @@ export function act(game: Game, action: "left" | "right" | "rotate" | "down" | "
     piece.x = x;
   } else if (action === "rotate") {
     const cells = rotate(piece.cells);
-    const offset = [0, -1, 1, -2, 2].find((dx) => !collides(game.board, cells, piece.x + dx, piece.y));
+    const offset = [0, -1, 1, -2, 2].find(
+      (dx) => !collides(game.board, cells, piece.x + dx, piece.y),
+    );
     if (offset === undefined) return false;
     piece.cells = cells;
     piece.x += offset;

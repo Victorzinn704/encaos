@@ -1,26 +1,23 @@
-# Roadmap de melhorias
+# Roadmap
 
-Critérios organizados pelo impacto na partida. A seção **Entregue** descreve somente o que foi implementado e verificado localmente.
+## Implementado e validado localmente
 
-## Entregue nesta revisão
+- Nome SYNTIL, marca e arena de janela inteira.
+- 12 tamanhos de janela, incluindo celular pequeno e paisagem.
+- Ambiente animado, interpolação, feedback de queda e movimento reduzido.
+- Som opcional, tela cheia, ajuda e painel de engenharia.
+- Teclado, toque, pausa, reinício e recorde local preservado da versão anterior.
+- Motor separado, testes, formatação e workflow de Pages.
 
-| Melhoria | Evidência |
-| --- | --- |
-| Novo enquadramento, paleta e hierarquia | Capturas em `docs/images/` e medidas em `AUDITORIA.md` |
-| Alvo e placar rápido antes do tabuleiro no celular | Teste de geometria em 390, 375 e 320 px |
-| Controles de toque fixos e teclado | Teste de queda, pausa, retomada e reinício em Chromium |
-| Feedback de nível e padrão resolvido | Indicador de progresso, mensagem de estado e animação com respeito a movimento reduzido |
-| Regressão visual básica no CI | `npm run test:ui` antes da etapa de publicação |
+## Próximos critérios de entrega
 
-## Próximas etapas
+| Prioridade | Trabalho                         | Critério                                                                                                               |
+| ---------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| P0         | Balanceamento e primeira partida | Sessões com jogadores registram compreensão das regras, acertos e tempo até o fim; ajustes baseados nessas observações |
+| P1         | Acessibilidade da partida        | Estado do tabuleiro compreensível por leitor de tela; contraste e navegação validados                                  |
+| P1         | Aparelhos e navegadores reais    | Confirmar toque, áreas seguras, áudio e enquadramento em celular pequeno, tablet, Safari e Firefox                     |
+| P1         | Medir desempenho                 | Registrar tempo de quadros e memória durante uma sessão longa em aparelho de referência                                |
+| P2         | Preferências persistentes        | Salvar som e intensidade de efeitos; permitir reduzir efeitos além da preferência do sistema                           |
+| Publicação | Origem/licença e remoto          | Atribuição revisada, repositório criado, CI verde e URL do Pages validada                                              |
 
-| Prioridade | Trabalho | Critério de aceite |
-| --- | --- | --- |
-| P0 | Medir a dificuldade real dos sete padrões | Registrar partidas de teste, taxa de acerto e tempo até o fim; ajustar peças ou padrões com base nesses dados |
-| P0 | Explicar a mecânica durante a primeira partida | Uma pessoa nova consegue identificar alvo, bloco `void`, queda e pontuação sem consultar o README |
-| P1 | Melhorar acesso por leitor de tela | Disponibilizar estado textual do tabuleiro e das peças, validar navegação só por teclado e checar contraste automaticamente |
-| P1 | Testar em aparelhos reais | Confirmar toque, legibilidade e rolagem em pelo menos um celular pequeno, um celular grande e um tablet |
-| P2 | Adicionar preferências opcionais | Som desligável e escolha de intensidade visual, com estado salvo localmente e respeito a movimento reduzido |
-| Publicação | Confirmar a licença/origem do código recebido e criar o remoto | Repositório público com atribuição adequada, workflow verde e URL do Pages aberta e testada |
-
-Cada etapa deve entrar em uma branch curta, com teste ou captura que comprove o critério de aceite e um commit em português que explique a mudança.
+Cada melhoria deve ter branch, commit em português e evidência do critério de entrega.

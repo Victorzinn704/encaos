@@ -1,0 +1,153 @@
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate(-3%, -2%) rotate(-4deg);
+  }
+  50% {
+    transform: translate(5%, 3%) rotate(6deg);
+  }
+}
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes spectrum {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translate(var(--sx, 3px), var(--sy, -4px));
+    opacity: 1;
+    box-shadow: 0 0 22px #9dd8ff30;
+  }
+}
+@keyframes equalizer {
+  0%,
+  100% {
+    transform: scaleY(0.5);
+    opacity: 0.25;
+  }
+  50% {
+    transform: scaleY(2);
+    opacity: 0.65;
+  }
+}
+@keyframes sheen {
+  0%,
+  70% {
+    transform: translateX(-130%) skewX(-25deg);
+  }
+  95%,
+  100% {
+    transform: translateX(130%) skewX(-25deg);
+  }
+}
+@keyframes impact {
+  0% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(3px);
+  }
+  65% {
+    transform: translateY(-1px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes notice {
+  0% {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  30% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+@keyframes celebrate {
+  30% {
+    box-shadow: inset 0 0 120px #a99bff25;
+  }
+  100% {
+    box-shadow: inset 0 0 0 transparent;
+  }
+}
+.aurora {
+  animation: drift 16s ease-in-out infinite;
+}
+.arena-orbit i:nth-child(2) {
+  animation: orbit 85s linear infinite;
+}
+.arena-orbit i:nth-child(3) {
+  animation: orbit 35s linear infinite reverse;
+}
+.spectrum-emblem i {
+  animation: spectrum 3s ease-in-out infinite;
+}
+.spectrum-emblem i:nth-child(2) {
+  animation-delay: -0.8s;
+  --sx: 4px;
+  --sy: 3px;
+}
+.spectrum-emblem i:nth-child(3) {
+  animation-delay: -1.6s;
+  --sx: -4px;
+  --sy: -3px;
+}
+.spectrum-emblem i:nth-child(4) {
+  animation-delay: -2.4s;
+  --sx: -3px;
+  --sy: 4px;
+}
+.signal-bars i {
+  animation: equalizer 1.8s ease-in-out infinite;
+}
+.signal-bars i:nth-child(3n) {
+  animation-delay: -0.6s;
+  height: 14px;
+}
+.signal-bars i:nth-child(3n + 1) {
+  animation-delay: -1.2s;
+}
+.signal-bars i:nth-child(4n) {
+  height: 19px;
+  animation-duration: 2.7s;
+}
+.primary-button:before {
+  animation: sheen 5s ease-in-out infinite;
+}
+.impact .canvas-wrap {
+  animation: impact 0.24s ease-out;
+}
+.impact .drop-notice {
+  animation: notice 0.6s ease-out;
+}
+.celebrate .playfield {
+  animation: celebrate 0.7s ease-out;
+}
+body[data-hidden="true"] * {
+  animation-play-state: paused !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *:before,
+  *:after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .arena-orbit i {
+    transform: none;
+  }
+  .drop-notice {
+    display: none;
+  }
+}

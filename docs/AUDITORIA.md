@@ -1,42 +1,51 @@
-# Auditoria técnica e visual
+# Auditoria do SYNTIL
 
-Data: 27/09/2026. Escopo: código local e interface renderizada em Chromium, antes e depois do redesenho.
+Data: 27/09/2026. Escopo: implementação local e build estático servido em Chromium.
 
-## Diagnóstico inicial
+## Correções desta revisão
 
-O jogo funcionava, mas a organização da tela prejudicava a partida. O tabuleiro ficava isolado em uma coluna alta, enquanto alvo, pontuação e controles apareciam depois dele no celular. O visual usava cartões escuros de peso parecido, com pouca relação entre a ação principal e o feedback.
+O nome herdado do exercício foi substituído por SYNTIL. A moldura centralizada deu lugar a uma aplicação de **100dvh**, com barra de ações, missão, arena, desempenho e rodapé. No celular, alvo, placar rápido, tabuleiro e comandos cabem juntos na janela, incluindo 320 × 568; a solução anterior exigia rolagem nesse tamanho.
 
-| Janela | Antes | Depois |
-| --- | --- | --- |
-| 1440 × 900 | Tabuleiro de 347 a 945 px; página com 1.215 px de altura | Tabuleiro de 163 a 759 px; moldura inteira de 50 a 851 px |
-| 1280 × 800 | Tabuleiro de 347 a 945 px | Tabuleiro de 148 a 672 px; moldura inteira de 30 a 770 px |
-| 375 × 812 | Alvo começava em 1.226 px; controles em 1.841 px | Alvo de 67 a 178 px; tabuleiro de 276 a 732 px; controles fixos de 741 a 804 px |
-| 320 × 568 | Alvo começava em 1.116 px; controles em 1.733 px | Alvo de 67 a 178 px; controles fixos na janela; o tabuleiro completo aparece após uma rolagem curta |
+O visual usa azul e violeta sobre grafite, marca vetorial própria e tipografia do sistema. O ambiente tem partículas, aurora em CSS, órbitas e um emblema animado. Movimentos da peça são interpolados; quedas produzem trilha, partículas e feedback breve. O som opcional é sintetizado sem baixar arquivos.
 
-Os valores foram lidos de `getBoundingClientRect()` e `scrollHeight` nas mesmas dimensões, com a aplicação servida localmente. A altura total da página móvel continua maior que a janela porque o placar detalhado e a legenda do teclado ficam abaixo da área de jogo. Isso mantém o alvo e os comandos essenciais perto do tabuleiro.
+## Verificação do enquadramento
 
-## Direção visual aplicada
+O script lê `getBoundingClientRect()` e `scrollHeight`, verificando:
 
-- O jogo ocupa uma moldura única: missão e padrão à esquerda, tabuleiro ao centro, placar e próxima peça à direita.
-- O lima e a moldura arredondada retomam a energia visual do ProjetoQR; o contraste entre painel de missão e ação principal vem da hierarquia observada no protótipo do InterpretaAI.
-- O desenho próprio do jogo aparece nos blocos de marca, na peça decorativa, na prévia do alvo e no tabuleiro.
-- O celular mostra alvo e placar rápido antes do tabuleiro, com comandos de toque fixos. Em 320 × 568 px, a página rola para permitir ver a base do tabuleiro sem perder os comandos.
-- Os tipos usam fontes do sistema, sem requisições de fonte externa em tempo de execução.
+- ausência de rolagem horizontal e vertical da página;
+- tabuleiro dentro da janela e proporção 1:2 preservada;
+- comandos de toque visíveis, sem cobrir o tabuleiro;
+- alvo acima do tabuleiro em retrato;
+- ausência de erros de JavaScript/console durante a abertura.
 
-## Validação executada
+Dimensões: **1920 × 1080, 1440 × 900, 1280 × 800, 1024 × 768, 820 × 900, 768 × 900, 641 × 900, 640 × 900, 390 × 844, 375 × 812, 320 × 568 e 844 × 390**. As duas últimas cobrem celular pequeno e paisagem.
+
+[Captura desktop](images/desktop.png) · [Captura móvel](images/mobile.png) · [Partida real](images/gameplay.png) · [Vídeo](images/gameplay.webm)
+
+## Fluxos e regras
+
+Os cinco testes do motor cobrem colisão, rotação sem mutação, ocupação/vazio do padrão, limpeza da área, pontuação, nível e fim de jogo. A suíte de navegador cobre iniciar, soltar por teclado, abrir ajuda pausando, impedir comandos enquanto a ajuda está aberta, pausa manual, retomar, perder, reiniciar e soltar por toque.
+
+Também confirma que o ambiente muda antes de iniciar; com `prefers-reduced-motion`, o fundo permanece estático e a animação CSS fica desligada. O painel do projeto abre e fecha, o botão de som alterna o estado e tela cheia entra e sai em Chromium. A gravação utiliza entradas de teclado reais, sem preencher artificialmente o tabuleiro.
+
+## Qualidade e desempenho
 
 ```bash
 npm test
+npm run format:check
 npm run build
 npm run test:ui
 npm audit --audit-level=moderate
 ```
 
-Os testes de regras cobrem colisão, rotação, comparação do padrão, bloco `void`, pontuação, nível e fim de jogo. O teste de interface percorre nove tamanhos entre 320 × 568 e 1440 × 900 px, verifica ausência de rolagem horizontal e erros de console, confirma enquadramento nas janelas principais e exercita início, queda, pausa, retomada, fim, reinício e toque. As capturas finais estão em [desktop](images/desktop.png) e [celular](images/mobile.png).
+Um único loop coordena o tempo. Partículas são limitadas, efeitos são descartados ao terminar e nós de áudio são desconectados. A interface não é atualizada inteira a cada quadro. Ao ocultar a aba, a partida pausa e o trabalho de desenho é suspenso; as animações CSS também pausam.
 
-## Limites da evidência
+O tamanho do bundle é informado pelo build. Esses cuidados não comprovam uma taxa de quadros universal: não houve benchmark de GPU, bateria ou aparelhos móveis reais.
 
-- A inspeção automatizada não substitui uma sessão com jogadores para medir clareza das regras e dificuldade dos padrões.
-- O tabuleiro é desenhado em canvas; uma descrição textual completa de cada célula para leitores de tela ainda precisa ser projetada.
-- O tamanho 320 × 568 px exige rolagem curta durante a partida; o dock permanece visível.
-- O repositório está preparado para GitHub Pages, mas a publicação pública depende da confirmação da origem/licença do código inicial fornecido pelo usuário.
+## Limites
+
+- Dificuldade e distribuição de peças ainda dependem de testes com jogadores.
+- Canvas tem rótulos e instruções, mas ainda não fornece uma representação completa da partida para leitores de tela.
+- Web Audio e tela cheia dependem do suporte do navegador; áudio começa desligado e tela cheia trata falhas.
+- A suíte utiliza Chromium; Firefox, Safari e aparelhos reais ainda estão no roadmap.
+- Workflow de Pages preparado, sem remoto ou deploy público nesta revisão; origem/licença do exercício inicial ainda precisam ser confirmadas.
