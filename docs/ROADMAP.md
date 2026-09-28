@@ -1,8 +1,8 @@
 # Roadmap
 
-## Implementado e validado localmente
+## Implementado
 
-- Interface anterior inspirada no InterpretaAI restaurada, com o nome SYNTIL e enquadramento na janela.
+- Interface anterior inspirada no InterpretaAI restaurada, com o nome ENCAOS e enquadramento na janela.
 - 12 tamanhos de janela, incluindo celular pequeno e paisagem.
 - Sete tetrominós em sacolas, limpeza simples e múltipla, descida da pilha e pontuação por linhas.
 - W/A/S/D e setas, duas próximas peças visíveis no desktop e celular.
@@ -10,7 +10,7 @@
 - Interpolação, feedback de queda e limpeza, com movimento reduzido.
 - Som opcional, tela cheia e ajuda com as regras atualizadas.
 - Teclado, toque, pausa, reinício e recorde local separado para o modo de linhas.
-- Motor separado, testes, formatação e workflow de Pages.
+- Motor separado, testes, formatação e publicação automática pelo GitHub Pages.
 
 ## Próximos critérios de entrega
 
@@ -21,6 +21,5 @@
 | P1         | Aparelhos e navegadores reais    | Confirmar toque, áreas seguras, áudio e enquadramento em celular pequeno, tablet, Safari e Firefox                     |
 | P1         | Medir desempenho                 | Registrar tempo de quadros e memória durante uma sessão longa em aparelho de referência                                |
 | P2         | Preferências persistentes        | Salvar som e intensidade de efeitos; permitir reduzir efeitos além da preferência do sistema                           |
-| Publicação | Origem/licença e remoto          | Atribuição revisada, repositório criado, CI verde e URL do Pages validada                                              |
 
 Cada melhoria deve ter branch, commit em português e evidência do critério de entrega.

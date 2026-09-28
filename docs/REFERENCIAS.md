@@ -2,7 +2,7 @@
 
 ## Direção atual
 
-A pedido do usuário, a interface recupera a revisão `ce7bb1d`, inspirada no InterpretaAI. O código dessa revisão é a referência direta para painéis, tipografia, cartões e ilustração. O nome SYNTIL e o enquadramento na janela permanecem.
+A pedido do usuário, a interface recupera a revisão `ce7bb1d`, inspirada no InterpretaAI. O código dessa revisão é a referência direta para painéis, tipografia, cartões e ilustração. O enquadramento na janela permanece. O nome Encaos (encaixe + caos) foi escolhido pelo usuário para a publicação.
 
 O jogo agora limpa linhas inteiras. A regra de padrões 5 × 5 foi substituída por sete tetrominós, sacola de peças, limpeza de linhas e descida da pilha. As instruções descrevem essa mecânica.
 
@@ -23,4 +23,4 @@ Estas fontes foram consultadas em 27/09/2026 durante a direção visual posterio
 - [MDN — técnicas para jogos web](https://developer.mozilla.org/en-US/docs/Games/Techniques).
 - [Princeton Tower Defense](https://github.com/Kevin-Liu-01/Princeton-Tower-Defense) e [Novastrike](https://github.com/enyagening/novastrike): referências de jogos em Canvas.
 
-Não foram importados snippets dessas galerias. A origem/licença do exercício inicial permanece pendente para publicação pública.
+Não foram importados snippets dessas galerias. O exercício inicial foi fornecido pelo autor do projeto, sem URL ou licença informada. Nenhuma licença de redistribuição foi adicionada.

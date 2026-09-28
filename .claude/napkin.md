@@ -19,7 +19,7 @@
 
 ## User Directives
 1. **[2026-09-27] Dar identidade visual e enquadramento ao jogo**
-   Do instead: preservar a aparência anterior inspirada no InterpretaAI, com missão verde-lima, placar creme e cartões; manter o nome SYNTIL, proporção 1:2 e comandos dentro da janela. Não retornar à direção futurista rejeitada.
+   Do instead: preservar a aparência anterior inspirada no InterpretaAI, com missão verde-lima, placar creme e cartões; manter o nome ENCAOS, proporção 1:2 e comandos dentro da janela. Não retornar à direção futurista rejeitada.
 
 2. **[2026-09-27] Manter Git e comentários legíveis em português**
    Do instead: usar commits com motivo claro em português e comentar decisões não óbvias, evitando narrar cada linha.

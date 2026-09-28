@@ -44,8 +44,11 @@ let comboTimer: number | undefined;
 
 function readHighScore(): number {
   try {
-    // A pontuação por linhas tem um recorde próprio, separado do antigo modo de padrões.
-    const saved = Number(localStorage.getItem("syntil.lines.highScore"));
+    // Recupera o recorde do nome anterior quando ainda não há um registro do Encaos.
+    const saved = Number(
+      localStorage.getItem("encaos.lines.highScore") ??
+        localStorage.getItem("syntil.lines.highScore"),
+    );
     return Number.isFinite(saved) && saved > 0 ? saved : 0;
   } catch {
     return 0;
@@ -55,7 +58,7 @@ function saveHighScore(): void {
   if (game.score <= highScore) return;
   highScore = game.score;
   try {
-    localStorage.setItem("syntil.lines.highScore", String(highScore));
+    localStorage.setItem("encaos.lines.highScore", String(highScore));
   } catch {
     /* A partida segue sem armazenamento. */
   }
