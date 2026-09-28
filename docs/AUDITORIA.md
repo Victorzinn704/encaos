@@ -22,7 +22,7 @@ O indicador aparece no placar e no placar móvel. Um aviso temporário e o som o
 
 ## Restauração visual
 
-HTML, estilos, cores dos blocos e favicon foram recuperados de `ce7bb1d`, a revisão anterior inspirada no InterpretaAI. Foram mantidos o nome SYNTIL e os ajustes de enquadramento na janela. Os painéis voltaram a ser verde-lima e creme, com a tipografia, cartões e ilustração de blocos anteriores.
+HTML, estilos, cores dos blocos e favicon foram recuperados de `ce7bb1d`, a revisão anterior inspirada no InterpretaAI. Os ajustes de enquadramento na janela foram preservados. O nome atual, Encaos, foi escolhido pelo usuário após essa restauração. Os painéis voltaram a ser verde-lima e creme, com a tipografia, cartões e ilustração de blocos anteriores.
 
 A interface futurista e o fundo animado da revisão seguinte foram retirados. O feedback acompanha ações da partida: movimento das peças, queda e limpeza de linhas. [Desktop](images/desktop.png), [celular](images/mobile.png), [combo no celular](images/mobile-combo.png) e [vídeo com combo ×2](images/gameplay.webm).
 
@@ -62,4 +62,4 @@ npm run test:ui
 
 Os testes de navegador usam Chromium. Aparelhos reais, Safari, Firefox, consumo de bateria e uma representação completa do tabuleiro para leitores de tela ainda precisam de validação. O jogo não implementa todas as regras de competições de Tetris, como o sistema oficial de rotação, hold e contagem de T-spins.
 
-O workflow de Pages está preparado. Não houve publicação pública nesta revisão; origem/licença do exercício inicial e remoto continuam pendentes.
+O workflow de Pages executa estes testes antes do deploy. O repositório público e o endereço do jogo estão no README. A URL e a licença do exercício inicial não foram informadas; nenhuma licença de redistribuição foi adicionada.

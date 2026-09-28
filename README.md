@@ -1,10 +1,12 @@
-# SYNTIL
+# ENCAOS
 
-**Encaixe as peças. Complete as linhas.**
+**Organize a queda.**
 
-Jogo de blocos para navegador, com sete tetrominós e limpeza de linhas. A interface anterior inspirada no InterpretaAI foi restaurada: missão verde-lima, placar creme e cartões sobre um tabuleiro escuro. O nome SYNTIL combina _syntax_ e _tile_.
+[Jogar agora](https://victorzinn704.github.io/encaos/)
 
-![Arena SYNTIL em desktop](docs/images/desktop.png)
+Jogo de blocos para navegador, com sete tetrominós e limpeza de linhas. A interface anterior inspirada no InterpretaAI foi restaurada: missão verde-lima, placar creme e cartões sobre um tabuleiro escuro. Encaos combina **encaixe + caos**.
+
+![Arena ENCAOS em desktop](docs/images/desktop.png)
 
 [Ver a partida](docs/images/gameplay.png) · [Vídeo com combo](docs/images/gameplay.webm) · [Interface móvel](docs/images/mobile.png)
 
@@ -19,7 +21,7 @@ Preencha as **dez casas de uma linha**. Ela desaparece e as linhas acima descem,
 | 3                            | 500            |
 | 4                            | 800            |
 
-Dez linhas limpas avançam o nível e aumentam a velocidade. O recorde desse modo usa `syntil.lines.highScore`; o recorde do antigo modo de padrões permanece no armazenamento, separado desta pontuação.
+Dez linhas limpas avançam o nível e aumentam a velocidade. O recorde é salvo no navegador. Ao jogar no mesmo endereço, o Encaos recupera o recorde do nome anterior; a mudança para outro domínio não transfere esse armazenamento.
 
 **Combos:** limpar linhas em quedas consecutivas prolonga a sequência. A segunda limpeza dá **+50 × nível**, a terceira **+100 × nível**, e assim por diante. A primeira começa a sequência sem bônus. Uma peça que trava sem limpar linhas encerra o combo; mover, girar e pausar preservam a sequência. O bônus aparece no placar, no aviso da arena e no som opcional.
 
@@ -87,17 +89,12 @@ Para atualizar capturas e vídeo, rode `npm run test:ui` com `UI_SCREENSHOTS=1`.
 
 O histórico usa commits em português. Melhorias entram em branches curtas, por exemplo `feat/wasd-fila-combos`, e são integradas à `main` com um merge que registra a entrega. A direção visual restaurada vem de `ce7bb1d`.
 
-O repositório local ainda não tem remoto. A publicação pública depende da confirmação da origem/licença do código inicial recebido. Após essa revisão:
+Repositório: [Victorzinn704/encaos](https://github.com/Victorzinn704/encaos).
 
-1. Crie um repositório vazio `syntil`.
-2. Configure o remoto e envie:
+Jogo: [victorzinn704.github.io/encaos](https://victorzinn704.github.io/encaos/).
 
-   ```bash
-   git remote add origin https://github.com/SEU-USUARIO/syntil.git
-   git push -u origin main
-   ```
+Cada envio à `main` executa formatação, testes das regras, build e testes da interface antes do deploy. A publicação usa **GitHub Actions**, configurada em **Settings → Pages**. O build usa caminhos relativos para funcionar sob `/encaos/`.
 
-3. Em **Settings → Pages**, selecione **GitHub Actions**.
-4. O workflow publica `dist` após os testes. URL esperada: `https://SEU-USUARIO.github.io/syntil/`.
+## Origem e referências
 
-O build usa caminhos relativos para funcionar sob o caminho do repositório. Nenhum deploy público foi executado nesta revisão.
+O projeto começou a partir de um exercício de blocos fornecido pelo autor do projeto, com o título Stack Overflown. O motor e a interface foram remodelados no histórico deste repositório. A URL e a licença do exercício inicial não foram informadas; este repositório não declara uma licença de redistribuição. As referências visuais estão documentadas em [Decisões e referências](docs/REFERENCIAS.md).
