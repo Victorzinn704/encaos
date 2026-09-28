@@ -1,51 +1,50 @@
-# Auditoria do SYNTIL
+# Auditoria: linhas e interface restaurada
 
-Data: 27/09/2026. Escopo: implementação local e build estático servido em Chromium.
+Data: 27/09/2026. Validação local em Chromium sobre o build estático.
 
-## Correções desta revisão
+## Correção das regras
 
-O nome herdado do exercício foi substituído por SYNTIL. A moldura centralizada deu lugar a uma aplicação de **100dvh**, com barra de ações, missão, arena, desempenho e rodapé. No celular, alvo, placar rápido, tabuleiro e comandos cabem juntos na janela, incluindo 320 × 568; a solução anterior exigia rolagem nesse tamanho.
+A versão anterior só removia um desenho completo dentro de uma janela 5 × 5. Uma linha cheia não era eliminada. O motor agora usa sete peças de quatro blocos e limpa todas as linhas completas quando a peça trava.
 
-O visual usa azul e violeta sobre grafite, marca vetorial própria e tipografia do sistema. O ambiente tem partículas, aurora em CSS, órbitas e um emblema animado. Movimentos da peça são interpolados; quedas produzem trilha, partículas e feedback breve. O som opcional é sintetizado sem baixar arquivos.
+As linhas acima descem juntas. Os espaços vazios dentro delas permanecem vazios; os blocos não caem individualmente. Limpar 1, 2, 3 ou 4 linhas vale 100, 300, 500 ou 800 pontos multiplicados pelo nível. Dez linhas avançam o nível. A sacola entrega os sete formatos sem repetição antes de renovar.
 
-## Verificação do enquadramento
+Objetivo, ajuda, contador, progresso e mensagens foram atualizados. O recorde por linhas tem uma chave própria; os registros do modo de padrões não são apagados.
 
-O script lê `getBoundingClientRect()` e `scrollHeight`, verificando:
+## Restauração visual
 
-- ausência de rolagem horizontal e vertical da página;
-- tabuleiro dentro da janela e proporção 1:2 preservada;
-- comandos de toque visíveis, sem cobrir o tabuleiro;
-- alvo acima do tabuleiro em retrato;
-- ausência de erros de JavaScript/console durante a abertura.
+HTML, estilos, cores dos blocos e favicon foram recuperados de `ce7bb1d`, a revisão anterior inspirada no InterpretaAI. Foram mantidos o nome SYNTIL e os ajustes de enquadramento na janela. Os painéis voltaram a ser verde-lima e creme, com a tipografia, cartões e ilustração de blocos anteriores.
 
-Dimensões: **1920 × 1080, 1440 × 900, 1280 × 800, 1024 × 768, 820 × 900, 768 × 900, 641 × 900, 640 × 900, 390 × 844, 375 × 812, 320 × 568 e 844 × 390**. As duas últimas cobrem celular pequeno e paisagem.
+A interface futurista e o fundo animado da revisão seguinte foram retirados. O feedback agora acompanha ações da partida: movimento das peças, queda e limpeza de linhas. [Desktop](images/desktop.png), [celular](images/mobile.png) e [vídeo com uma linha eliminada](images/gameplay.webm).
 
-[Captura desktop](images/desktop.png) · [Captura móvel](images/mobile.png) · [Partida real](images/gameplay.png) · [Vídeo](images/gameplay.webm)
+## Evidência das regras
 
-## Fluxos e regras
+Sete testes verificam:
 
-Os cinco testes do motor cobrem colisão, rotação sem mutação, ocupação/vazio do padrão, limpeza da área, pontuação, nível e fim de jogo. A suíte de navegador cobre iniciar, soltar por teclado, abrir ajuda pausando, impedir comandos enquanto a ajuda está aberta, pausa manual, retomar, perder, reiniciar e soltar por toque.
+- bordas, colisão e independência das linhas;
+- rotação sem mutação e ajuste perto da parede;
+- limpeza simultânea de linhas separadas e descida dos blocos acima;
+- preservação de linhas incompletas e pontuação somente ao travar;
+- quatro linhas eliminadas, pontuação e avanço de nível;
+- sete formatos de quatro blocos sem repetição na sacola;
+- fim de jogo e bloqueio de ações fora da partida.
 
-Também confirma que o ambiente muda antes de iniciar; com `prefers-reduced-motion`, o fundo permanece estático e a animação CSS fica desligada. O painel do projeto abre e fecha, o botão de som alterna o estado e tela cheia entra e sai em Chromium. A gravação utiliza entradas de teclado reais, sem preencher artificialmente o tabuleiro.
+O teste no navegador fecha uma linha com **I + O + T + S** usando comandos reais. Confere o contador, os 100 pontos e uma casa que estava ocupada e ficou vazia. Esse fluxo é executado por teclado e por toque. O vídeo registra a mesma jogada.
 
-## Qualidade e desempenho
+## Interface
+
+Dimensões: **1920 × 1080, 1440 × 900, 1280 × 800, 1024 × 768, 820 × 900, 768 × 900, 641 × 900, 640 × 900, 390 × 844, 375 × 812, 320 × 568 e 844 × 390**.
+
+O script verifica proporção 1:2, ausência de rolagem da página, tabuleiro e controles dentro da janela, instrução dentro do cartão e abertura dentro do tabuleiro. Também exercita ajuda e pausa, reinício, recorde após recarregar, som opcional, tela cheia e movimento reduzido.
 
 ```bash
 npm test
 npm run format:check
 npm run build
 npm run test:ui
-npm audit --audit-level=moderate
 ```
-
-Um único loop coordena o tempo. Partículas são limitadas, efeitos são descartados ao terminar e nós de áudio são desconectados. A interface não é atualizada inteira a cada quadro. Ao ocultar a aba, a partida pausa e o trabalho de desenho é suspenso; as animações CSS também pausam.
-
-O tamanho do bundle é informado pelo build. Esses cuidados não comprovam uma taxa de quadros universal: não houve benchmark de GPU, bateria ou aparelhos móveis reais.
 
 ## Limites
 
-- Dificuldade e distribuição de peças ainda dependem de testes com jogadores.
-- Canvas tem rótulos e instruções, mas ainda não fornece uma representação completa da partida para leitores de tela.
-- Web Audio e tela cheia dependem do suporte do navegador; áudio começa desligado e tela cheia trata falhas.
-- A suíte utiliza Chromium; Firefox, Safari e aparelhos reais ainda estão no roadmap.
-- Workflow de Pages preparado, sem remoto ou deploy público nesta revisão; origem/licença do exercício inicial ainda precisam ser confirmadas.
+Os testes de navegador usam Chromium. Aparelhos reais, Safari, Firefox, consumo de bateria e uma representação completa do tabuleiro para leitores de tela ainda precisam de validação. O jogo não implementa todas as regras de competições de Tetris, como o sistema oficial de rotação, hold e contagem de T-spins.
+
+O workflow de Pages está preparado. Não houve publicação pública nesta revisão; origem/licença do exercício inicial e remoto continuam pendentes.

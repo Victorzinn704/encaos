@@ -1,8 +1,8 @@
 # SYNTIL
 
-**Decifre o padrão. Encontre seu próximo movimento.**
+**Encaixe as peças. Complete as linhas.**
 
-Puzzle de precisão para navegador, desenvolvido a partir de um exercício de blocos e padrões de programação. A nova identidade combina _syntax_ e _tile_. SYNTIL é o nome escolhido para esta adaptação; a busca inicial não encontrou um jogo com esse nome, mas não constitui verificação de marca.
+Jogo de blocos para navegador, com sete tetrominós e limpeza de linhas. A interface anterior inspirada no InterpretaAI foi restaurada: missão verde-lima, placar creme e cartões sobre um tabuleiro escuro. O nome SYNTIL combina _syntax_ e _tile_.
 
 ![Arena SYNTIL em desktop](docs/images/desktop.png)
 
@@ -10,7 +10,16 @@ Puzzle de precisão para navegador, desenvolvido a partir de um exercício de bl
 
 ## O desafio
 
-Reproduza o sinal alvo em qualquer janela **5 × 5** do tabuleiro. Cada padrão vale **100 pontos** e limpa somente a área resolvida. Cinco padrões avançam o nível. Blocos escuros ocupam espaço físico, mas contam como vazio na comparação; a sombra mostra onde a peça vai pousar.
+Preencha as **dez casas de uma linha**. Ela desaparece e as linhas acima descem, preservando seus espaços vazios. A sombra mostra onde a peça vai pousar. Cada sacola entrega os sete formatos uma vez antes de renovar.
+
+| Linhas limpas na mesma queda | Pontos × nível |
+| ---------------------------- | -------------- |
+| 1                            | 100            |
+| 2                            | 300            |
+| 3                            | 500            |
+| 4                            | 800            |
+
+Dez linhas limpas avançam o nível e aumentam a velocidade. O recorde desse modo usa `syntil.lines.highScore`; o recorde do antigo modo de padrões permanece no armazenamento, separado desta pontuação.
 
 | Controle | Ação               |
 | -------- | ------------------ |
@@ -27,8 +36,8 @@ No celular, os cinco botões ficam abaixo da arena, dentro da janela. A ajuda ex
 
 - **Regras independentes do DOM:** colisão, rotação, encaixe, progressão e pontuação testáveis isoladamente.
 - **Movimento separado da regra:** a posição lógica decide a colisão; interpolação visual e partículas oferecem feedback sem alterar o resultado.
-- **Um relógio de animação:** `requestAnimationFrame` conduz gravidade, ambiente e efeitos. O DOM só é atualizado após ações; o relógio visível muda a cada segundo.
-- **Efeitos com custo limitado:** 38 partículas no ambiente, no máximo 100 partículas de impacto, escala de pixels do fundo limitada a 2. O tabuleiro só é redesenhado durante ações, transições ou efeitos.
+- **Um relógio de animação:** `requestAnimationFrame` conduz gravidade, interpolação e efeitos. Textos são atualizados quando mudam; a prévia só é redesenhada ao trocar a próxima peça.
+- **Feedback de limpeza:** faixas e fragmentos mostram as linhas eliminadas, com no máximo 100 partículas. O tabuleiro é redesenhado durante ações, transições ou efeitos.
 - **Preferências e foco:** movimento reduzido respeitado; aba oculta pausa a partida e o trabalho visual; abrir ajuda pausa o jogo; os diálogos usam foco e Escape nativos.
 - **Entrega estática:** TypeScript + Vite compilam HTML/CSS/JS para Pages; Canvas 2D e Web Audio são APIs do navegador. Sem serviços, fontes remotas ou biblioteca visual em runtime.
 - **Evidência reproduzível:** Vitest verifica o motor; Playwright exercita o build e o enquadramento em 12 tamanhos. CI inclui formatação, testes e build antes de publicar.
@@ -56,23 +65,22 @@ Para atualizar capturas e vídeo, rode `npm run test:ui` com `UI_SCREENSHOTS=1`.
 
 ## Organização
 
-| Arquivo                            | Responsabilidade                                |
-| ---------------------------------- | ----------------------------------------------- |
-| `src/game.ts`                      | Motor e estado, sem navegador                   |
-| `src/patterns.ts`                  | Os sete padrões do exercício original           |
-| `src/render.ts`                    | Desenho do tabuleiro e prévias                  |
-| `src/effects.ts`                   | Ambiente, trilhas e partículas                  |
-| `src/audio.ts`                     | Síntese dos sons opcionais                      |
-| `src/main.ts`                      | Comandos, foco, pausa e coordenação             |
-| `src/style.css` / `src/motion.css` | Enquadramento e animações                       |
-| `tests/game.test.ts`               | Testes das regras                               |
-| `scripts/check-ui.mjs`             | Geometria, fluxos, movimento reduzido e captura |
+| Arquivo                | Responsabilidade                                |
+| ---------------------- | ----------------------------------------------- |
+| `src/game.ts`          | Motor e estado, sem navegador                   |
+| `src/render.ts`        | Desenho do tabuleiro e prévias                  |
+| `src/effects.ts`       | Trilhas, limpeza de linhas e partículas         |
+| `src/audio.ts`         | Síntese dos sons opcionais                      |
+| `src/main.ts`          | Comandos, foco, pausa e coordenação             |
+| `src/style.css`        | Interface restaurada, enquadramento e animações |
+| `tests/game.test.ts`   | Testes das regras                               |
+| `scripts/check-ui.mjs` | Geometria, fluxos, movimento reduzido e captura |
 
 [Auditoria](docs/AUDITORIA.md) · [Decisões e referências](docs/REFERENCIAS.md) · [Próximas etapas](docs/ROADMAP.md)
 
 ## Git e GitHub Pages
 
-O histórico usa commits em português. Melhorias entram em branches curtas, por exemplo `feat/syntil-arena`, e são integradas à `main` com um merge que registra a entrega.
+O histórico usa commits em português. Melhorias entram em branches curtas, por exemplo `fix/linhas-interface-anterior`, e são integradas à `main` com um merge que registra a entrega. A direção visual restaurada vem de `ce7bb1d`; a regra de linhas foi implementada nesta revisão.
 
 O repositório local ainda não tem remoto. A publicação pública depende da confirmação da origem/licença do código inicial recebido. Após essa revisão:
 
