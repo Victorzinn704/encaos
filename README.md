@@ -1,12 +1,41 @@
-# Stack Overflown
+# SYNTIL
 
-Jogo de blocos inspirado em erros de programação. O objetivo é reproduzir o padrão 5 × 5 mostrado ao lado do tabuleiro. Cada acerto vale 100 pontos e limpa apenas a área resolvida. A velocidade aumenta a cada cinco padrões.
+**Decifre o padrão. Encontre seu próximo movimento.**
 
-![Interface do jogo em desktop](docs/images/desktop.png)
+Puzzle de precisão para navegador, desenvolvido a partir de um exercício de blocos e padrões de programação. A nova identidade combina _syntax_ e _tile_. SYNTIL é o nome escolhido para esta adaptação; a busca inicial não encontrou um jogo com esse nome, mas não constitui verificação de marca.
 
-O alvo e o placar rápido ficam acima do tabuleiro no celular; os controles de toque permanecem acessíveis durante a partida. [Veja a prévia móvel](docs/images/mobile.png), a [auditoria visual e técnica](docs/AUDITORIA.md) e o [roadmap](docs/ROADMAP.md).
+![Arena SYNTIL em desktop](docs/images/desktop.png)
 
-## Jogar localmente
+[Ver a partida](docs/images/gameplay.png) · [Vídeo com animações](docs/images/gameplay.webm) · [Interface móvel](docs/images/mobile.png)
+
+## O desafio
+
+Reproduza o sinal alvo em qualquer janela **5 × 5** do tabuleiro. Cada padrão vale **100 pontos** e limpa somente a área resolvida. Cinco padrões avançam o nível. Blocos escuros ocupam espaço físico, mas contam como vazio na comparação; a sombra mostra onde a peça vai pousar.
+
+| Controle | Ação               |
+| -------- | ------------------ |
+| ← / →    | Mover              |
+| ↑        | Girar              |
+| ↓        | Descer             |
+| Espaço   | Queda imediata     |
+| P        | Pausar / continuar |
+| Enter    | Iniciar            |
+
+No celular, os cinco botões ficam abaixo da arena, dentro da janela. A ajuda explica as regras sem perder a partida. O som é opcional e começa desligado.
+
+## Engenharia demonstrada
+
+- **Regras independentes do DOM:** colisão, rotação, encaixe, progressão e pontuação testáveis isoladamente.
+- **Movimento separado da regra:** a posição lógica decide a colisão; interpolação visual e partículas oferecem feedback sem alterar o resultado.
+- **Um relógio de animação:** `requestAnimationFrame` conduz gravidade, ambiente e efeitos. O DOM só é atualizado após ações; o relógio visível muda a cada segundo.
+- **Efeitos com custo limitado:** 38 partículas no ambiente, no máximo 100 partículas de impacto, escala de pixels do fundo limitada a 2. O tabuleiro só é redesenhado durante ações, transições ou efeitos.
+- **Preferências e foco:** movimento reduzido respeitado; aba oculta pausa a partida e o trabalho visual; abrir ajuda pausa o jogo; os diálogos usam foco e Escape nativos.
+- **Entrega estática:** TypeScript + Vite compilam HTML/CSS/JS para Pages; Canvas 2D e Web Audio são APIs do navegador. Sem serviços, fontes remotas ou biblioteca visual em runtime.
+- **Evidência reproduzível:** Vitest verifica o motor; Playwright exercita o build e o enquadramento em 12 tamanhos. CI inclui formatação, testes e build antes de publicar.
+
+Esses são recursos verificáveis no código e nos testes. Taxa de quadros, consumo de bateria e dificuldade ainda precisam de medições em aparelhos e partidas reais.
+
+## Executar
 
 Requer Node.js 20.19+ ou 22.12+.
 
@@ -15,53 +44,47 @@ npm ci
 npm run dev
 ```
 
-Abra o endereço mostrado no terminal. Para validar o projeto:
-
 ```bash
 npm test
+npm run format:check
 npm run build
+npx playwright install chromium
 npm run test:ui
 ```
 
-## Controles
+Para atualizar capturas e vídeo, rode `npm run test:ui` com `UI_SCREENSHOTS=1`. Em PowerShell: `$env:UI_SCREENSHOTS='1'` antes do comando. Para formatar: `npm run format`.
 
-| Tecla | Ação |
-| --- | --- |
-| ← / → | Mover |
-| ↑ | Girar |
-| ↓ | Descer uma linha |
-| Espaço | Soltar até o fundo |
-| P | Pausar ou continuar |
+## Organização
 
-Em telas pequenas, use os botões abaixo do tabuleiro. Blocos escuros (`void`) ocupam espaço físico, mas contam como uma célula vazia ao conferir o padrão. A sombra translúcida mostra onde a peça vai pousar.
+| Arquivo                            | Responsabilidade                                |
+| ---------------------------------- | ----------------------------------------------- |
+| `src/game.ts`                      | Motor e estado, sem navegador                   |
+| `src/patterns.ts`                  | Os sete padrões do exercício original           |
+| `src/render.ts`                    | Desenho do tabuleiro e prévias                  |
+| `src/effects.ts`                   | Ambiente, trilhas e partículas                  |
+| `src/audio.ts`                     | Síntese dos sons opcionais                      |
+| `src/main.ts`                      | Comandos, foco, pausa e coordenação             |
+| `src/style.css` / `src/motion.css` | Enquadramento e animações                       |
+| `tests/game.test.ts`               | Testes das regras                               |
+| `scripts/check-ui.mjs`             | Geometria, fluxos, movimento reduzido e captura |
 
-## Estrutura
+[Auditoria](docs/AUDITORIA.md) · [Decisões e referências](docs/REFERENCIAS.md) · [Próximas etapas](docs/ROADMAP.md)
 
-- `src/game.ts`: regras, colisões, pontuação e estado do jogo, sem acesso ao DOM.
-- `src/patterns.ts`: desenhos dos bugs.
-- `src/render.ts`: desenho dos canvas.
-- `src/main.ts`: controles, relógio e interface.
-- `tests/game.test.ts`: testes das regras principais.
-- `scripts/check-ui.mjs`: teste da interface, nove tamanhos de janela e fluxos de jogo em Chromium.
-- `docs/`: auditoria, roadmap e capturas.
+## Git e GitHub Pages
 
-Vite e TypeScript cuidam da compilação. O jogo publicado usa só arquivos estáticos, sem fontes ou bibliotecas visuais carregadas em tempo de execução. O recorde fica salvo no navegador com `localStorage`. Para rodar o teste de interface localmente, instale o Chromium do Playwright uma vez com `npx playwright install chromium`.
+O histórico usa commits em português. Melhorias entram em branches curtas, por exemplo `feat/syntil-arena`, e são integradas à `main` com um merge que registra a entrega.
 
-## Publicar no GitHub Pages
+O repositório local ainda não tem remoto. A publicação pública depende da confirmação da origem/licença do código inicial recebido. Após essa revisão:
 
-1. Crie um repositório vazio no GitHub, por exemplo `stack-overflown`.
-2. Adicione o remoto e envie a branch `main`:
+1. Crie um repositório vazio `syntil`.
+2. Configure o remoto e envie:
 
    ```bash
-   git remote add origin https://github.com/SEU-USUARIO/stack-overflown.git
+   git remote add origin https://github.com/SEU-USUARIO/syntil.git
    git push -u origin main
    ```
 
-3. Em **Settings → Pages → Build and deployment**, selecione **GitHub Actions**.
-4. O workflow testa regras, compila, verifica a interface em Chromium e publica o conteúdo de `dist` a cada push para `main`. O endereço será `https://SEU-USUARIO.github.io/stack-overflown/`.
+3. Em **Settings → Pages**, selecione **GitHub Actions**.
+4. O workflow publica `dist` após os testes. URL esperada: `https://SEU-USUARIO.github.io/syntil/`.
 
-Os caminhos gerados são relativos, então o jogo também funciona se o repositório receber outro nome. A publicação pública ainda depende da confirmação da origem e licença do código inicial fornecido para esta adaptação.
-
-## Histórico Git
-
-As mensagens de commit explicam a mudança em português. Uma boa sequência para evoluir este projeto é abrir uma branch por melhoria (`feat/efeitos`, `fix/rotacao`), fazer commits pequenos, revisar o diff e integrar por pull request.
+O build usa caminhos relativos para funcionar sob o caminho do repositório. Nenhum deploy público foi executado nesta revisão.
