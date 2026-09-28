@@ -5,6 +5,8 @@
 - Interface anterior inspirada no InterpretaAI restaurada, com o nome SYNTIL e enquadramento na janela.
 - 12 tamanhos de janela, incluindo celular pequeno e paisagem.
 - Sete tetrominós em sacolas, limpeza simples e múltipla, descida da pilha e pontuação por linhas.
+- W/A/S/D e setas, duas próximas peças visíveis no desktop e celular.
+- Combos por limpezas consecutivas, bônus progressivo e feedback visual e sonoro opcional.
 - Interpolação, feedback de queda e limpeza, com movimento reduzido.
 - Som opcional, tela cheia e ajuda com as regras atualizadas.
 - Teclado, toque, pausa, reinício e recorde local separado para o modo de linhas.
