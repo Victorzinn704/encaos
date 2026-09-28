@@ -1,7 +1,7 @@
 import "./style.css";
 import { act, createGame, dropInterval, ghostY, type Game } from "./game";
-import { drawBoard, drawNext, drawPattern, patternNumber } from "./render";
-import { AmbientField, BoardEffects, motionPreference } from "./effects";
+import { drawBoard, drawNext } from "./render";
+import { BoardEffects, motionPreference } from "./effects";
 import { GameAudio } from "./audio";
 
 const elements = new Map<string, HTMLElement>();
@@ -21,9 +21,7 @@ function context(id: string): CanvasRenderingContext2D {
   return ctx;
 }
 const boardCtx = context("gameCanvas"),
-  patternCtx = context("patternCanvas"),
   nextCtx = context("nextCanvas");
-const ambience = new AmbientField(element<HTMLCanvasElement>("ambientCanvas"));
 const effects = new BoardEffects(),
   audio = new GameAudio();
 const actionButtons = Array.from(
@@ -33,23 +31,17 @@ const dialogs = Array.from(
   document.querySelectorAll<HTMLDialogElement>("dialog"),
 );
 let game: Game = createGame();
-let renderedTarget: Game["target"] | undefined;
 let renderedNext: Game["next"] | undefined;
 let visual = { ...game.current };
 let lastTime = 0,
-  elapsed = 0,
-  sessionTime = 0,
-  shownSeconds = -1;
+  elapsed = 0;
 let highScore = readHighScore();
-let impactTimer: number | undefined, celebrateTimer: number | undefined;
+let celebrateTimer: number | undefined;
 
 function readHighScore(): number {
   try {
-    // A mudança de nome preserva o recorde das versões locais anteriores.
-    const saved = Number(
-      localStorage.getItem("syntil.highScore") ??
-        localStorage.getItem("stackOverflownHighScore"),
-    );
+    // A pontuação por linhas tem um recorde próprio, separado do antigo modo de padrões.
+    const saved = Number(localStorage.getItem("syntil.lines.highScore"));
     return Number.isFinite(saved) && saved > 0 ? saved : 0;
   } catch {
     return 0;
@@ -59,7 +51,7 @@ function saveHighScore(): void {
   if (game.score <= highScore) return;
   highScore = game.score;
   try {
-    localStorage.setItem("syntil.highScore", String(highScore));
+    localStorage.setItem("syntil.lines.highScore", String(highScore));
   } catch {
     /* A partida segue sem armazenamento. */
   }
@@ -78,11 +70,7 @@ function showOverlay(
 }
 function renderUI(): void {
   document.body.dataset.phase = game.phase;
-  // As prévias mudam só ao nascer uma peça ou resolver o alvo, não a cada movimento.
-  if (renderedTarget !== game.target) {
-    drawPattern(patternCtx, game.target);
-    renderedTarget = game.target;
-  }
+  // A prévia muda só ao nascer uma peça, não a cada movimento.
   if (renderedNext !== game.next) {
     drawNext(nextCtx, game.next);
     renderedNext = game.next;
@@ -93,10 +81,8 @@ function renderUI(): void {
     text(id, String(game.level).padStart(2, "0"));
   text("cleared", String(game.cleared).padStart(2, "0"));
   text("highScore", String(highScore).padStart(4, "0"));
-  text("progressText", `${game.cleared % 5} / 5`);
-  element("progressFill").style.width = `${(game.cleared % 5) * 20}%`;
-  text("patternName", game.target.name);
-  text("patternIndex", patternNumber(game.target));
+  text("progressText", `${game.cleared % 10} / 10`);
+  element("progressFill").style.width = `${(game.cleared % 10) * 10}%`;
   text("statusText", game.message);
   const labels = {
     ready: "AGUARDANDO",
@@ -113,14 +99,17 @@ function renderUI(): void {
       ? 'Continuar <span aria-hidden="true">▷</span>'
       : 'Pausar <span aria-hidden="true">Ⅱ</span>';
   if (pause.innerHTML !== pauseContent) pause.innerHTML = pauseContent;
+  const mobilePause = element<HTMLButtonElement>("mobilePauseButton");
+  mobilePause.disabled = pause.disabled;
+  text("mobilePauseButton", game.phase === "paused" ? "Continuar" : "Pausar");
   actionButtons.forEach((button) => {
     button.disabled = game.phase !== "playing";
   });
   if (game.phase === "over")
     showOverlay(
-      "TRANSMISSÃO ENCERRADA",
-      "Fim de sinal",
-      `Você fez ${game.score} pontos e resolveu ${game.cleared} padrões.`,
+      "PARTIDA ENCERRADA",
+      "Chegou ao topo.",
+      `Você fez ${game.score} pontos e limpou ${game.cleared} linhas.`,
       "Jogar novamente",
     );
   drawBoard(boardCtx, game, visual);
@@ -128,12 +117,10 @@ function renderUI(): void {
 function startOrRestart(): void {
   if (game.phase === "over") {
     game = createGame();
-    sessionTime = 0;
-    shownSeconds = -1;
     effects.reset();
   }
   game.phase = "playing";
-  game.message = "Encaixe os blocos para completar o sinal.";
+  game.message = "Complete linhas de ponta a ponta.";
   visual = { ...game.current };
   element("overlay").classList.add("hidden");
   element<HTMLButtonElement>("overlayButton").blur();
@@ -154,7 +141,7 @@ function togglePause(): void {
     );
   } else if (game.phase === "paused") {
     game.phase = "playing";
-    game.message = "De volta ao sinal.";
+    game.message = "De volta à partida.";
     element("overlay").classList.add("hidden");
     element<HTMLButtonElement>("overlayButton").blur();
     lastTime = 0;
@@ -173,18 +160,9 @@ function perform(action: Action, userAction = true): void {
   if (game.current !== previousPiece) visual = { ...game.current };
   if (action === "drop") {
     effects.impact(previous, landing);
-    const arena = document.querySelector(".playfield")!;
-    arena.classList.remove("impact");
-    void (arena as HTMLElement).offsetWidth;
-    arena.classList.add("impact");
-    clearTimeout(impactTimer);
-    impactTimer = window.setTimeout(
-      () => arena.classList.remove("impact"),
-      650,
-    );
   }
   if (game.score > previousScore) {
-    effects.celebrate();
+    effects.clear(game.lastClear);
     audio.play("clear");
     document.querySelector(".cabinet")!.classList.add("celebrate");
     clearTimeout(celebrateTimer);
@@ -253,6 +231,10 @@ element("pauseButton").addEventListener("click", (event) => {
   togglePause();
   (event.currentTarget as HTMLButtonElement).blur();
 });
+element("mobilePauseButton").addEventListener("click", (event) => {
+  togglePause();
+  (event.currentTarget as HTMLButtonElement).blur();
+});
 actionButtons.forEach((button) => {
   button.addEventListener("pointerdown", (event) => {
     event.preventDefault();
@@ -262,15 +244,10 @@ actionButtons.forEach((button) => {
     if (event.detail === 0) perform(button.dataset.action as Action);
   });
 });
-for (const [buttonId, dialogId] of [
-  ["helpButton", "helpDialog"],
-  ["projectButton", "projectDialog"],
-] as const) {
-  element(buttonId).addEventListener("click", () => {
-    if (game.phase === "playing") togglePause();
-    element<HTMLDialogElement>(dialogId).showModal();
-  });
-}
+element("helpButton").addEventListener("click", () => {
+  if (game.phase === "playing") togglePause();
+  element<HTMLDialogElement>("helpDialog").showModal();
+});
 dialogs.forEach((dialog) => {
   dialog
     .querySelector("[data-close-dialog]")!
@@ -321,17 +298,9 @@ function loop(time: number): void {
   const dt = lastTime ? Math.min(time - lastTime, 100) : 0;
   lastTime = time;
   if (!document.hidden) {
-    ambience.draw(dt);
     if (game.phase === "playing") {
       elapsed += dt;
-      sessionTime += dt;
       if (elapsed >= dropInterval(game.level)) perform("down", false);
-    }
-    const seconds = Math.floor(sessionTime / 1000);
-    if (seconds !== shownSeconds) {
-      shownSeconds = seconds;
-      element("sessionClock").textContent =
-        `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
     }
     const moving =
       Math.abs(visual.x - game.current.x) +

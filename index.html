@@ -2,341 +2,286 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-    />
-    <meta name="theme-color" content="#090c14" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#181521" />
     <meta
       name="description"
-      content="SYNTIL — um puzzle de precisão. Decifre o padrão, encaixe as peças e mantenha o sinal vivo."
+      content="SYNTIL: encaixe as peças, complete linhas e mantenha a pilha sob controle."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>SYNTIL — decifre o próximo movimento</title>
+    <title>SYNTIL — encaixe e complete</title>
   </head>
-  <body data-phase="ready">
-    <div class="atmosphere" aria-hidden="true">
-      <canvas id="ambientCanvas"></canvas>
-      <div class="aurora"></div>
-    </div>
-    <main class="cabinet" aria-labelledby="gameTitle">
-      <header class="topbar">
-        <div class="brand">
-          <svg viewBox="0 0 40 40" aria-hidden="true">
-            <path
-              d="M8 7h11v11H8zm14 0h11v11H22zM8 21h11v11H8z"
-              fill="currentColor"
-            />
-            <path d="M22 21h11v11H22z" fill="#a99bff" /></svg
-          ><span>SYNTIL<small>PRECISION PUZZLE</small></span>
-        </div>
-        <div class="header-context">
-          <span class="live-dot"></span> ARENA
-          <span class="context-slash">/</span> SINGLE PLAYER
-        </div>
-        <nav class="header-actions" aria-label="Ações do jogo">
-          <button id="projectButton" class="text-button" type="button">
-            O projeto <span aria-hidden="true">↗</span>
-          </button>
-          <button
-            id="helpButton"
-            class="icon-button"
-            type="button"
-            aria-label="Como jogar"
-          >
-            ?
-          </button>
-          <button
-            id="soundButton"
-            class="icon-button"
-            type="button"
-            aria-label="Ativar som"
-            aria-pressed="false"
-          >
-            ♪
-          </button>
-          <button
-            id="fullscreenButton"
-            class="icon-button fullscreen-button"
-            type="button"
-            aria-label="Entrar em tela cheia"
-          >
-            ⛶
-          </button>
-          <button id="pauseButton" class="pause-button" type="button" disabled>
-            Pausar <span aria-hidden="true">Ⅱ</span>
-          </button>
-        </nav>
-      </header>
+  <body>
+    <div class="atmosphere" aria-hidden="true"><span></span><span></span></div>
+    <div class="app-shell">
+      <main class="cabinet" aria-labelledby="gameTitle">
+        <header class="topbar">
+          <div class="brand">
+            <span class="brand-icon" aria-hidden="true"
+              ><i></i><i></i><i></i><i></i></span
+            ><span><b>SYNTIL</b></span>
+          </div>
+          <div class="topbar-meta">
+            <span class="live-dot" aria-hidden="true"></span
+            ><span>PUZZLE / ARCADE</span
+            ><button
+              id="helpButton"
+              class="utility-button"
+              type="button"
+              aria-label="Como jogar"
+            >
+              ?</button
+            ><button
+              id="soundButton"
+              class="utility-button"
+              type="button"
+              aria-label="Ativar som"
+              aria-pressed="false"
+            >
+              ♪</button
+            ><button
+              id="fullscreenButton"
+              class="utility-button"
+              type="button"
+              aria-label="Entrar em tela cheia"
+            >
+              ⛶</button
+            ><button
+              id="mobilePauseButton"
+              class="utility-button mobile-pause-button"
+              type="button"
+              disabled
+            >
+              Pausar
+            </button>
+          </div>
+        </header>
 
-      <div class="game-layout">
-        <aside class="mission" aria-label="Missão e padrão">
-          <div class="mission-intro">
-            <span class="eyebrow">01 / RECONHECIMENTO</span>
-            <h1 id="gameTitle">Um padrão.<br /><em>Infinitas jogadas.</em></h1>
-            <p>
-              Transforme ruído em ordem. Reproduza o sinal abaixo em qualquer
-              área 5 × 5.
-            </p>
-          </div>
-          <section class="target-panel" aria-label="Padrão alvo">
-            <div class="target-heading">
-              <span>SINAL ALVO</span
-              ><span>#<span id="patternIndex">01</span></span>
+        <div class="game-layout">
+          <section class="mission" aria-labelledby="gameTitle">
+            <div class="mission-intro">
+              <p class="eyebrow">
+                <span class="diamond" aria-hidden="true">✦</span> ENCAIXAR /
+                COMPLETAR
+              </p>
+              <h1 id="gameTitle">Encaixe.<br /><em>Complete.</em></h1>
+              <p class="mission-copy">
+                As peças estão caindo. Complete linhas e mantenha a pilha sob
+                controle.
+              </p>
             </div>
-            <div class="target-content">
-              <canvas
-                id="patternCanvas"
-                width="120"
-                height="120"
-                role="img"
-                aria-label="Padrão alvo de cinco por cinco células"
-              ></canvas>
-              <div class="target-copy">
-                <span class="target-prefix">DECODIFICAR</span>
-                <h2 id="patternName">Carregando...</h2>
-                <p>Casas acesas: blocos.<br />Casas apagadas: vazio.</p>
-              </div>
-            </div>
-            <div class="target-reward">
-              <span>PADRÃO RESOLVIDO</span
-              ><strong>+100 <small>PTS</small></strong>
-            </div>
-          </section>
-          <div class="mission-guide">
-            <div><b>01</b><span>Leia o sinal</span></div>
-            <div><b>02</b><span>Encaixe as peças</span></div>
-            <div><b>03</b><span>Libere o espaço</span></div>
-          </div>
-          <div class="mission-note">
-            <span aria-hidden="true">◇</span>
-            <p>
-              <strong>Peça de vazio</strong><br />O bloco escuro sustenta a
-              pilha, mas conta como vazio no padrão.
-            </p>
-          </div>
-          <div class="signal-bars" aria-hidden="true">
-            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i
-            ><i></i><i></i><i></i><i></i><i></i>
-          </div>
-          <div class="sidebar-signature">SIGNAL → STRUCTURE</div>
-        </aside>
 
-        <section class="playfield" aria-label="Arena de jogo">
-          <div class="playfield-top">
-            <span class="playfield-label">ARENA <span>01</span></span
-            ><span id="stateTag" class="state-tag">AGUARDANDO</span
-            ><span class="session-clock" id="sessionClock">00:00</span>
-          </div>
-          <div class="mobile-stats">
-            <span>PTS <strong id="miniScore">0000</strong></span
-            ><span>NÍVEL <strong id="miniLevel">01</strong></span>
-          </div>
-          <div class="board-well">
-            <div class="arena-orbit" aria-hidden="true">
-              <i></i><i></i><i></i>
+            <div class="mission-art" aria-hidden="true">
+              <i></i><i></i><i></i><i></i><i></i><span>↘</span>
             </div>
-            <div class="canvas-wrap">
-              <canvas
-                id="gameCanvas"
-                width="300"
-                height="600"
-                role="img"
-                aria-label="Tabuleiro de dez colunas e vinte linhas"
-              ></canvas
-              ><span class="board-corner corner-one"></span
-              ><span class="board-corner corner-two"></span>
-            </div>
-            <div id="overlay" class="board-overlay">
-              <div class="overlay-card">
-                <div class="spectrum-emblem" aria-hidden="true">
-                  <i></i><i></i><i></i><i></i>
-                </div>
-                <p class="overlay-kicker" id="overlayKicker">
-                  PRECISÃO ENCONTRA INTUIÇÃO
-                </p>
-                <h2 id="overlayTitle">SYNTIL</h2>
-                <p id="overlayText">
-                  Decifre o padrão.<br />Encontre seu próximo movimento.
-                </p>
-                <button id="overlayButton" class="primary-button" type="button">
-                  Iniciar partida <span aria-hidden="true">→</span>
-                </button>
-                <span class="start-hint"
-                  >ENTER PARA INICIAR <span aria-hidden="true">·</span> SEM
-                  CADASTRO</span
+
+            <div class="target-panel">
+              <div class="target-heading">
+                <span>SEU OBJETIVO</span
+                ><span class="target-count"
+                  >10 <span aria-hidden="true">↗</span></span
                 >
               </div>
+              <div class="target-content">
+                <div class="line-preview" aria-hidden="true">
+                  <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i
+                  ><i></i>
+                </div>
+                <div class="target-copy">
+                  <span class="target-prefix">DE PONTA A PONTA</span>
+                  <h2>Feche a linha.</h2>
+                  <p>
+                    Preencha as 10 casas. A linha some e as peças acima descem.
+                  </p>
+                </div>
+              </div>
             </div>
-            <div id="dropNotice" class="drop-notice" aria-hidden="true">
-              IMPACTO
-            </div>
-          </div>
-          <div class="playfield-bottom">
-            <span class="status-pip" aria-hidden="true"></span
-            ><span id="statusText" role="status" aria-live="polite"
-              >Aguardando início</span
-            ><span class="grid-label">10 × 20</span>
-          </div>
-        </section>
 
-        <aside class="dashboard" aria-label="Placar e peças">
-          <div class="dashboard-top">
-            <span>DESEMPENHO</span><span class="dashboard-dot"></span>
-          </div>
-          <div class="score-block">
-            <span class="score-label">PONTUAÇÃO</span
-            ><strong id="score">0000</strong
-            ><span class="score-rule">CADA PADRÃO É UM NOVO COMEÇO.</span>
-          </div>
-          <div class="metric-row">
-            <div><span>NÍVEL</span><strong id="level">01</strong></div>
-            <div><span>RESOLVIDOS</span><strong id="cleared">00</strong></div>
-          </div>
-          <div class="record-row">
-            <span>RECORDE LOCAL</span><strong id="highScore">0000</strong>
-          </div>
-          <div class="level-progress">
-            <div>
-              <span>EVOLUÇÃO DO NÍVEL</span><span id="progressText">0 / 5</span>
+            <div class="mission-note">
+              <span class="note-icon" aria-hidden="true">◈</span>
+              <p>
+                <strong>Olhe a próxima peça</strong><br />Planeje o encaixe. A
+                sombra mostra onde a peça vai pousar.
+              </p>
             </div>
-            <div class="progress-track"><span id="progressFill"></span></div>
-          </div>
-          <section class="next-piece">
-            <div class="dashboard-heading">
-              <span>PRÓXIMA PEÇA</span><span>↓</span>
+            <div class="mission-decoration" aria-hidden="true">
+              <span></span><span></span><span></span>
             </div>
-            <canvas
-              id="nextCanvas"
-              width="120"
-              height="75"
-              role="img"
-              aria-label="Próxima peça"
-            ></canvas>
           </section>
-          <section class="keyboard-controls" aria-label="Controles do teclado">
-            <div class="dashboard-heading">
-              <span>CONTROLES</span><span>⌨</span>
+
+          <section class="playfield" aria-label="Tabuleiro do jogo">
+            <div class="playfield-top">
+              <span class="playfield-label"
+                ><span aria-hidden="true">▸</span> ÁREA DE JOGO</span
+              ><span id="stateTag" class="state-tag">AGUARDANDO</span>
             </div>
-            <div class="control-row">
-              <span>Mover</span><span><kbd>←</kbd><kbd>→</kbd></span>
+            <div class="mobile-stats" aria-label="Placar rápido">
+              <span>PTS <strong id="miniScore">0000</strong></span
+              ><span>NÍVEL <strong id="miniLevel">01</strong></span>
             </div>
-            <div class="control-row">
-              <span>Girar / descer</span><span><kbd>↑</kbd><kbd>↓</kbd></span>
+            <div class="board-well">
+              <div class="board-side" aria-hidden="true">
+                <span>01</span><span>05</span><span>10</span><span>15</span
+                ><span>20</span>
+              </div>
+              <div class="canvas-wrap">
+                <canvas
+                  id="gameCanvas"
+                  width="300"
+                  height="600"
+                  role="img"
+                  aria-label="Tabuleiro de dez colunas e vinte linhas"
+                ></canvas>
+                <div id="overlay" class="board-overlay">
+                  <div class="overlay-card">
+                    <div class="overlay-symbol" aria-hidden="true">↧</div>
+                    <p class="overlay-kicker" id="overlayKicker">
+                      PRONTO PARA JOGAR?
+                    </p>
+                    <h2 id="overlayTitle">Encaixe as peças.</h2>
+                    <p id="overlayText">
+                      Complete linhas de ponta a ponta. Elas desaparecem e a
+                      pilha desce.
+                    </p>
+                    <button
+                      id="overlayButton"
+                      class="primary-button"
+                      type="button"
+                    >
+                      Iniciar partida <span aria-hidden="true">↗</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="control-row">
-              <span>Queda imediata</span><kbd>ESPAÇO</kbd>
+            <div class="playfield-bottom">
+              <span class="status-pip" aria-hidden="true"></span
+              ><span id="statusText" role="status" aria-live="polite"
+                >Aguardando início</span
+              ><span class="grid-label">10 × 20</span>
             </div>
-            <div class="control-row"><span>Pausar</span><kbd>P</kbd></div>
           </section>
-          <div class="focus-note">
-            <span aria-hidden="true">◎</span> PRECISÃO ANTES DE VELOCIDADE.
-          </div>
-        </aside>
-      </div>
 
-      <div class="touch-controls" aria-label="Controles de toque">
-        <button
-          type="button"
-          data-action="left"
-          aria-label="Mover para esquerda"
-        >
-          ←</button
-        ><button type="button" data-action="rotate" aria-label="Girar peça">
-          ↻</button
-        ><button type="button" data-action="down" aria-label="Descer peça">
-          ↓</button
-        ><button
-          type="button"
-          data-action="right"
-          aria-label="Mover para direita"
-        >
-          →</button
-        ><button type="button" data-action="drop" aria-label="Soltar peça">
-          SOLTAR <span aria-hidden="true">↧</span>
-        </button>
-      </div>
-      <footer class="cabinet-footer">
-        <span>SYNTIL <i></i> UM PUZZLE DE PRECISÃO</span
-        ><span>CANVAS 2D <i></i> TYPESCRIPT <i></i> BUILD 02</span>
-      </footer>
-    </main>
+          <aside class="dashboard" aria-label="Placar e comandos">
+            <div class="dashboard-top">
+              <span class="section-code">SEU PLACAR</span
+              ><span aria-hidden="true">✦</span>
+            </div>
+            <div class="score-block">
+              <span class="score-label">PONTOS ACUMULADOS</span
+              ><strong id="score">0000</strong
+              ><span class="score-rule"
+                >1 / 2 / 3 / 4 LINHAS → 100 / 300 / 500 / 800 × NÍVEL</span
+              >
+            </div>
+            <div class="metric-row">
+              <div><span>NÍVEL</span><strong id="level">01</strong></div>
+              <div><span>LINHAS</span><strong id="cleared">00</strong></div>
+              <div>
+                <span>RECORDE</span><strong id="highScore">0000</strong>
+              </div>
+            </div>
+            <div class="level-progress">
+              <div>
+                <span>PRÓXIMO NÍVEL</span><span id="progressText">0 / 10</span>
+              </div>
+              <div class="progress-track"><span id="progressFill"></span></div>
+            </div>
+            <div class="dashboard-divider"></div>
+            <section class="next-piece" aria-label="Próximo bloco">
+              <div class="dashboard-heading">
+                <span>NA FILA</span><span>↘</span>
+              </div>
+              <div class="next-content">
+                <canvas
+                  id="nextCanvas"
+                  width="120"
+                  height="75"
+                  role="img"
+                  aria-label="Prévia do próximo bloco"
+                ></canvas
+                ><span>Próximo<br />bloco</span>
+              </div>
+            </section>
+            <section
+              class="keyboard-controls"
+              aria-label="Controles do teclado"
+            >
+              <div class="dashboard-heading">
+                <span>COMO JOGAR</span><span>⌨</span>
+              </div>
+              <div class="control-row">
+                <span>Mover</span><span><kbd>←</kbd><kbd>→</kbd></span>
+              </div>
+              <div class="control-row"><span>Girar</span><kbd>↑</kbd></div>
+              <div class="control-row"><span>Descer</span><kbd>↓</kbd></div>
+              <div class="control-row">
+                <span>Soltar</span><kbd>ESPAÇO</kbd>
+              </div>
+              <div class="control-row"><span>Pausar</span><kbd>P</kbd></div>
+            </section>
+            <button
+              id="pauseButton"
+              class="pause-button"
+              type="button"
+              disabled
+            >
+              Pausar <span aria-hidden="true">Ⅱ</span>
+            </button>
+          </aside>
+        </div>
 
-    <dialog id="helpDialog" class="info-dialog">
-      <button class="dialog-close" data-close-dialog aria-label="Fechar ajuda">
-        ×</button
-      ><span class="eyebrow">MANUAL DA ARENA</span>
-      <h2>Transforme ruído<br />em ordem.</h2>
+        <div class="touch-controls" aria-label="Controles de toque">
+          <button
+            type="button"
+            data-action="left"
+            aria-label="Mover para esquerda"
+          >
+            ←
+          </button>
+          <button type="button" data-action="rotate" aria-label="Girar bloco">
+            ↻
+          </button>
+          <button type="button" data-action="down" aria-label="Descer bloco">
+            ↓
+          </button>
+          <button
+            type="button"
+            data-action="right"
+            aria-label="Mover para direita"
+          >
+            →
+          </button>
+          <button type="button" data-action="drop" aria-label="Soltar bloco">
+            SOLTAR <span aria-hidden="true">↧</span>
+          </button>
+        </div>
+        <footer class="cabinet-footer">
+          <span
+            >SYNTIL <span aria-hidden="true">✳</span> UMA LINHA DE CADA
+            VEZ</span
+          ><span>BUILD 03 / BROWSER GAME</span>
+        </footer>
+      </main>
+    </div>
+    <dialog id="helpDialog" class="help-dialog">
+      <button data-close-dialog class="dialog-close" aria-label="Fechar ajuda">
+        ×
+      </button>
+      <h2>Como jogar</h2>
       <p>
-        Monte o desenho do sinal alvo em qualquer janela de
-        <strong>5 × 5</strong> no tabuleiro. A cor das peças não importa: a
-        posição é o que vale.
+        Encaixe as peças para preencher uma linha inteira de dez casas. Quando
+        ela fica completa, desaparece e tudo que está acima desce.
       </p>
-      <ol>
-        <li>
-          <strong>Preencha as casas acesas</strong> e mantenha as apagadas
-          livres.
-        </li>
-        <li>
-          <strong>Use as peças escuras como apoio:</strong> elas ocupam espaço
-          físico, mas contam como vazio no desenho.
-        </li>
-        <li>
-          <strong>Resolva um padrão para ganhar 100 pontos.</strong> A área é
-          removida e um novo alvo aparece.
-        </li>
-      </ol>
       <p>
-        Cinco padrões resolvidos avançam o nível. A sombra mostra onde sua peça
-        vai pousar.
+        Limpar 1, 2, 3 ou 4 linhas de uma vez vale 100, 300, 500 ou 800 pontos,
+        multiplicados pelo nível. A cada dez linhas o jogo fica mais rápido.
       </p>
-      <div class="dialog-keys">
-        <kbd>← →</kbd> mover <kbd>↑</kbd> girar <kbd>↓</kbd> descer
-        <kbd>ESPAÇO</kbd> soltar <kbd>P</kbd> pausar
-      </div>
-    </dialog>
-    <dialog id="projectDialog" class="info-dialog project-dialog">
-      <button
-        class="dialog-close"
-        data-close-dialog
-        aria-label="Fechar informações do projeto"
-      >
-        ×</button
-      ><span class="eyebrow">POR TRÁS DO JOGO</span>
-      <h2>SYNTIL.<br />Interação em código.</h2>
       <p>
-        Um projeto de estudo de engenharia frontend: regras testáveis,
-        renderização em Canvas 2D e uma interface que responde à partida.
+        <kbd>← →</kbd> mover · <kbd>↑</kbd> girar · <kbd>↓</kbd> descer ·
+        <kbd>ESPAÇO</kbd> soltar · <kbd>P</kbd> pausar.
       </p>
-      <div class="project-pillars">
-        <section>
-          <span>01</span>
-          <h3>Motor independente</h3>
-          <p>
-            Colisão, rotação e pontuação separados da interface e cobertos por
-            testes.
-          </p>
-        </section>
-        <section>
-          <span>02</span>
-          <h3>Movimento com intenção</h3>
-          <p>
-            Interpolação de peças, partículas de impacto e ambiente animado com
-            suporte a movimento reduzido.
-          </p>
-        </section>
-        <section>
-          <span>03</span>
-          <h3>Qualidade reproduzível</h3>
-          <p>
-            Testes de teclado, toque, pausa, reinício e enquadramento executados
-            sobre o build estático.
-          </p>
-        </section>
-      </div>
-      <p class="project-footnote">
-        TypeScript · Vite · Canvas 2D · Web Audio · Playwright · Vitest
-      </p>
+      <p>A partida pausa enquanto esta ajuda está aberta.</p>
     </dialog>
     <script type="module" src="/src/main.ts"></script>
   </body>
